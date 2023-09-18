@@ -1,4 +1,4 @@
-package ru.nsu;
+package ru.nsu.bogdanov;
 
 import java.util.Arrays;
 import java.util.List;
