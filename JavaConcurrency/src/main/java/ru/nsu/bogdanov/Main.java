@@ -1,7 +1,7 @@
-package ru.nsu;
+package ru.nsu.bogdanov;
 
-import ru.nsu.components.Company;
-import ru.nsu.components.Founder;
+import ru.nsu.bogdanov.components.Company;
+import ru.nsu.bogdanov.components.Founder;
 
 public class Main {
 

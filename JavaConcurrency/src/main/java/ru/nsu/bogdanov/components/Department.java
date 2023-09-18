@@ -1,4 +1,4 @@
-package ru.nsu.components;
+package ru.nsu.bogdanov.components;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;

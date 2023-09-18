@@ -1,4 +1,4 @@
-package ru.nsu.components;
+package ru.nsu.bogdanov.components;
 
 import java.util.ArrayList;
 import java.util.List;
