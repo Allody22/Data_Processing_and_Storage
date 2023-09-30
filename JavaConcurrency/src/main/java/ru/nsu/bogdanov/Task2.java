@@ -8,7 +8,7 @@ public class Task2 {
 
         // Описание задачи для новой нити
         Runnable task = () -> {
-            for (int i = 0; i <  LOOP_TASK2_ITERATOR; ++i) {
+            for (int i = 0; i < LOOP_TASK2_ITERATOR; ++i) {
                 System.out.println("Элемент цикла номер :" + i + " от новой нити");
             }
         };
@@ -31,7 +31,7 @@ public class Task2 {
         System.out.println("Новая нить закончила");
 
         // Вывод строки из главной нити (потока)
-        for (int i = 0; i <  LOOP_TASK2_ITERATOR; ++i) {
+        for (int i = 0; i < LOOP_TASK2_ITERATOR; ++i) {
             System.out.println("Элемент цикла номер :" + i + " от главной нити");
         }
     }
