@@ -1,5 +1,6 @@
-package ru.nsu.bogdanov.components;
+package ru.nsu.bogdanov.task6;
 
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 /**
@@ -32,8 +33,15 @@ public class Worker implements Runnable {
         department.performCalculations();
         try {
             barrier.await();  // Ожидание, пока все Worker'ы не достигнут барьера.
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Восстановить прерванный статус, если поток был прерван
+            System.out.println("Thread was interrupted: " + e.getMessage());
+        } catch (BrokenBarrierException e) {
+            System.out.println("Barrier was broken: " + e.getMessage());
         } catch (Exception e) {
+            // Обработка других неожиданных исключений
             e.printStackTrace();
         }
     }
+
 }
