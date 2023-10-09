@@ -1,4 +1,4 @@
-package ru.nsu.bogdanov.task6;
+package ru.nsu.mbogdanov.task6;
 
 public class Main {
     /*

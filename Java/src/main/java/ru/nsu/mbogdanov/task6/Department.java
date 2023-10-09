@@ -1,4 +1,4 @@
-package ru.nsu.bogdanov.task6;
+package ru.nsu.mbogdanov.task6;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
