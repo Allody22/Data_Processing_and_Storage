@@ -1,4 +1,4 @@
-package ru.nsu.bogdanov;
+package ru.nsu.mbogdanov;
 
 public class Task5 {
 
