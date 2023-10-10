@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8d9324cb-ec75-43e0-ad87-e9d89f4a2c83" name="Changes" comment="Моё решение 8 задачи">
-      <change afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/mbogdanov/task9/Fork.java" afterDir="false" />
+    <list default="true" id="8d9324cb-ec75-43e0-ad87-e9d89f4a2c83" name="Changes" comment="Моё решение 9 задачи">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/ru/nsu/mbogdanov/task9/DiningPhilosophers.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/nsu/mbogdanov/task9/DiningPhilosophers.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -212,8 +212,17 @@
       <updated>1696846906774</updated>
       <workItem from="1696846907910" duration="364000" />
       <workItem from="1696852776964" duration="6280000" />
-      <workItem from="1696903908086" duration="4640000" />
+      <workItem from="1696903908086" duration="5991000" />
     </task>
+    <task id="LOCAL-00001" summary="Моё решение 9 задачи">
+      <option name="closed" value="true" />
+      <created>1696910606771</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1696910606771</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -222,6 +231,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Такс а вот 7 лаба с мавном" />
     <MESSAGE value="Я меняю систему сборки на maven. Мне очень не понравилось как gradle сигналы обрабатывает" />
-    <option name="LAST_COMMIT_MESSAGE" value="Я меняю систему сборки на maven. Мне очень не понравилось как gradle сигналы обрабатывает" />
+    <MESSAGE value="Моё решение 9 задачи" />
+    <option name="LAST_COMMIT_MESSAGE" value="Моё решение 9 задачи" />
   </component>
 </project>

@@ -27,10 +27,13 @@ public class DiningPhilosophers {
         // Создание и запуск потоков философов
         for (int i = 0; i < PHILOSOPHERS_COUNT; i++) {
             Fork leftFork = forks[i]; // Философ всегда начинает с левой вилки.
-            Fork rightFork = forks[(i + 1) % PHILOSOPHERS_COUNT]; // Правая вилка выбирается соседней с левой.
-            philosophers[i] = new Philosopher(i, leftFork, rightFork);
+            Fork rightFork = forks[(i + 1) % PHILOSOPHERS_COUNT];
+            if (i == PHILOSOPHERS_COUNT - 1) {
+                philosophers[i] = new Philosopher(i, rightFork, leftFork); // Последний философ берет сначала правую вилку
+            } else {
+                philosophers[i] = new Philosopher(i, leftFork, rightFork);
+            }
             philosophers[i].start();
         }
-
     }
 }
