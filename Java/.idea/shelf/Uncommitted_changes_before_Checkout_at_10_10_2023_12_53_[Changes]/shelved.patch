@@ -1,0 +1,265 @@
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"09d83710-3214-4202-847e-37c3ae80e601\" name=\"Changes\" comment=\"Я грёбанное позорище, с 3 раз не могу пакет нормально назвать\" />\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_BRANCH_BY_REPOSITORY\">\r\n      <map>\r\n        <entry key=\"$PROJECT_DIR$/..\" value=\"master\" />\r\n      </map>\r\n    </option>\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$/..\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 0\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2WWTlv9OKegqqYDk6EDGW5CjfdL\" />\r\n  <component name=\"ProjectLevelVcsManager\">\r\n    <ConfirmationsSetting value=\"1\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\">{\r\n  &quot;keyToString&quot;: {\r\n    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,\r\n    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,\r\n    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,\r\n    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,\r\n    &quot;git-widget-placeholder&quot;: &quot;concurrency__task6&quot;,\r\n    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,\r\n    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;corretto-18 (2)&quot;,\r\n    &quot;last_opened_file_path&quot;: &quot;C:/Users/IAMNO/OneDrive/Рабочий стол/ХОИ/Java&quot;,\r\n    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,\r\n    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,\r\n    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,\r\n    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,\r\n    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,\r\n    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;\r\n  }\r\n}</component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"CopyFile.RECENT_KEYS\">\r\n      <recent name=\"C:\\Users\\IAMNO\\OneDrive\\Рабочий стол\\ХОИ\\Java\\src\\main\\java\\bogdanov\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"RunManager\">\r\n    <configuration name=\"Main\" type=\"Application\" factoryName=\"Application\" temporary=\"true\" nameIsGenerated=\"true\">\r\n      <option name=\"MAIN_CLASS_NAME\" value=\"ru.nsu.bogdanov.task6.Main\" />\r\n      <module name=\"Java\" />\r\n      <extension name=\"coverage\">\r\n        <pattern>\r\n          <option name=\"PATTERN\" value=\"ru.nsu.bogdanov.task6.*\" />\r\n          <option name=\"ENABLED\" value=\"true\" />\r\n        </pattern>\r\n      </extension>\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration default=\"true\" type=\"JetRunConfigurationType\">\r\n      <module name=\"Java\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <configuration default=\"true\" type=\"KotlinStandaloneScriptRunConfigurationType\">\r\n      <module name=\"Java\" />\r\n      <option name=\"filePath\" />\r\n      <method v=\"2\">\r\n        <option name=\"Make\" enabled=\"true\" />\r\n      </method>\r\n    </configuration>\r\n    <recent_temporary>\r\n      <list>\r\n        <item itemvalue=\"Application.Main\" />\r\n      </list>\r\n    </recent_temporary>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"application-level\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"Default task\">\r\n      <changelist id=\"09d83710-3214-4202-847e-37c3ae80e601\" name=\"Changes\" comment=\"Я меняю систему сборки на maven. Мне очень не понравилось как gradle сигналы обрабатывает, надеюсь ничего не забыл\" />\r\n      <created>1696847490331</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1696847490331</updated>\r\n      <workItem from=\"1696847491382\" duration=\"433000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"Vcs.Log.Tabs.Properties\">\r\n    <option name=\"TAB_STATES\">\r\n      <map>\r\n        <entry key=\"MAIN\">\r\n          <value>\r\n            <State />\r\n          </value>\r\n        </entry>\r\n      </map>\r\n    </option>\r\n  </component>\r\n  <component name=\"VcsManagerConfiguration\">\r\n    <MESSAGE value=\"Я меняю систему сборки на maven. Мне очень не понравилось как gradle сигналы обрабатывает, надеюсь ничего не забыл\" />\r\n    <MESSAGE value=\"Я грёбанное позорище, с 3 раз не могу пакет нормально назвать\" />\r\n    <option name=\"LAST_COMMIT_MESSAGE\" value=\"Я грёбанное позорище, с 3 раз не могу пакет нормально назвать\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 77af39a7f2368f93521275b641f51eb31d32cd5f)
++++ b/.idea/workspace.xml	(date 1696917170417)
+@@ -4,24 +4,47 @@
+     <option name="autoReloadType" value="SELECTIVE" />
+   </component>
+   <component name="ChangeListManager">
+-    <list default="true" id="09d83710-3214-4202-847e-37c3ae80e601" name="Changes" comment="Я грёбанное позорище, с 3 раз не могу пакет нормально назвать" />
++    <list default="true" id="8d9324cb-ec75-43e0-ad87-e9d89f4a2c83" name="Changes" comment="Моё решение 9 задачи">
++      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++    </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+     <option name="LAST_RESOLUTION" value="IGNORE" />
++  </component>
++  <component name="FileTemplateManagerImpl">
++    <option name="RECENT_TEMPLATES">
++      <list>
++        <option value="Class" />
++      </list>
++    </option>
+   </component>
+   <component name="Git.Settings">
+     <option name="RECENT_BRANCH_BY_REPOSITORY">
+       <map>
+-        <entry key="$PROJECT_DIR$/.." value="master" />
++        <entry key="$PROJECT_DIR$/.." value="concurrency_task10" />
+       </map>
+     </option>
+     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+   </component>
++  <component name="GitHubPullRequestSearchHistory">{
++  &quot;lastFilter&quot;: {
++    &quot;state&quot;: &quot;OPEN&quot;,
++    &quot;assignee&quot;: &quot;Allody22&quot;
++  }
++}</component>
++  <component name="GithubPullRequestsUISettings">
++    <option name="selectedUrlAndAccountId">
++      <UrlAndAccount>
++        <option name="accountId" value="85dd5a3d-b794-43cb-89f6-59ebea2ed978" />
++        <option name="url" value="https://github.com/Allody22/Data_Processing_and_Storage" />
++      </UrlAndAccount>
++    </option>
++  </component>
+   <component name="ProjectColorInfo">{
+-  &quot;associatedIndex&quot;: 0
++  &quot;associatedIndex&quot;: 8
+ }</component>
+-  <component name="ProjectId" id="2WWTlv9OKegqqYDk6EDGW5CjfdL" />
++  <component name="ProjectId" id="2WWSaGPfbSnNWRZ2pMBh2myncIx" />
+   <component name="ProjectLevelVcsManager">
+     <ConfirmationsSetting value="1" id="Add" />
+   </component>
+@@ -29,39 +52,39 @@
+     <option name="hideEmptyMiddlePackages" value="true" />
+     <option name="showLibraryContents" value="true" />
+   </component>
+-  <component name="PropertiesComponent">{
+-  &quot;keyToString&quot;: {
+-    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+-    &quot;git-widget-placeholder&quot;: &quot;concurrency__task6&quot;,
+-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+-    &quot;jdk.selected.JAVA_MODULE&quot;: &quot;corretto-18 (2)&quot;,
+-    &quot;last_opened_file_path&quot;: &quot;C:/Users/IAMNO/OneDrive/Рабочий стол/ХОИ/Java&quot;,
+-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
++  <component name="PropertiesComponent"><![CDATA[{
++  "keyToString": {
++    "RunOnceActivity.OpenProjectViewOnStart": "true",
++    "RunOnceActivity.ShowReadmeOnStart": "true",
++    "WebServerToolWindowFactoryState": "false",
++    "deletionFromPopupRequiresConfirmation": "false",
++    "git-widget-placeholder": "concurrency__task6",
++    "last_opened_file_path": "C:/Users/IAMNO/OneDrive/Рабочий стол/ХОИ/Java/src/main/java",
++    "node.js.detected.package.eslint": "true",
++    "node.js.detected.package.tslint": "true",
++    "node.js.selected.package.eslint": "(autodetect)",
++    "node.js.selected.package.tslint": "(autodetect)",
++    "project.structure.last.edited": "Project",
++    "project.structure.proportion": "0.0",
++    "project.structure.side.proportion": "0.0",
++    "vue.rearranger.settings.migration": "true"
+   }
+-}</component>
++}]]></component>
+   <component name="RecentsManager">
+     <key name="CopyFile.RECENT_KEYS">
+-      <recent name="C:\Users\IAMNO\OneDrive\Рабочий стол\ХОИ\Java\src\main\java\bogdanov" />
++      <recent name="C:\Users\IAMNO\OneDrive\Рабочий стол\ХОИ\Java\src\main\java" />
++    </key>
++    <key name="CopyClassDialog.RECENTS_KEY">
++      <recent name="ru.nsu.mbogdanov.task9" />
+     </key>
+   </component>
+-  <component name="RunManager">
++  <component name="RunManager" selected="Application.ru.nsu.mbogdanov.task6.Main">
+     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+-      <option name="MAIN_CLASS_NAME" value="ru.nsu.bogdanov.task6.Main" />
++      <option name="MAIN_CLASS_NAME" value="ru.nsu.mbogdanov.task10.Main" />
+       <module name="Java" />
+       <extension name="coverage">
+         <pattern>
+-          <option name="PATTERN" value="ru.nsu.bogdanov.task6.*" />
++          <option name="PATTERN" value="ru.nsu.mbogdanov.task10.*" />
+           <option name="ENABLED" value="true" />
+         </pattern>
+       </extension>
+@@ -69,54 +92,116 @@
+         <option name="Make" enabled="true" />
+       </method>
+     </configuration>
+-    <configuration default="true" type="JetRunConfigurationType">
++    <configuration name="Task1" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
++      <option name="MAIN_CLASS_NAME" value="ru.nsu.mbogdanov.Task1" />
+       <module name="Java" />
++      <extension name="coverage">
++        <pattern>
++          <option name="PATTERN" value="ru.nsu.mbogdanov.*" />
++          <option name="ENABLED" value="true" />
++        </pattern>
++      </extension>
+       <method v="2">
+         <option name="Make" enabled="true" />
+       </method>
+     </configuration>
+-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
++    <configuration name="ru.nsu.mbogdanov.task6.Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
++      <option name="MAIN_CLASS_NAME" value="ru.nsu.mbogdanov.task6.Main" />
+       <module name="Java" />
+-      <option name="filePath" />
++      <extension name="coverage">
++        <pattern>
++          <option name="PATTERN" value="ru.nsu.mbogdanov.task6.*" />
++          <option name="ENABLED" value="true" />
++        </pattern>
++      </extension>
+       <method v="2">
+         <option name="Make" enabled="true" />
+       </method>
+     </configuration>
++    <configuration name="Java [clean,package]" type="MavenRunConfiguration" factoryName="Maven" nameIsGenerated="true">
++      <MavenSettings>
++        <option name="myGeneralSettings" />
++        <option name="myRunnerSettings" />
++        <option name="myRunnerParameters">
++          <MavenRunnerParameters>
++            <option name="cmdOptions" />
++            <option name="profiles">
++              <set />
++            </option>
++            <option name="goals">
++              <list>
++                <option value="clean" />
++                <option value="package" />
++              </list>
++            </option>
++            <option name="pomFileName" />
++            <option name="profilesMap">
++              <map />
++            </option>
++            <option name="projectsCmdOptionValues">
++              <list />
++            </option>
++            <option name="resolveToWorkspace" value="false" />
++            <option name="workingDirPath" value="$PROJECT_DIR$" />
++          </MavenRunnerParameters>
++        </option>
++      </MavenSettings>
++      <extension name="net.ashald.envfile">
++        <option name="IS_ENABLED" value="false" />
++        <option name="IS_SUBST" value="false" />
++        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
++        <option name="IS_IGNORE_MISSING_FILES" value="false" />
++        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
++        <ENTRIES>
++          <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
++        </ENTRIES>
++      </extension>
++      <method v="2" />
++    </configuration>
++    <list>
++      <item itemvalue="Application.ru.nsu.mbogdanov.task6.Main" />
++      <item itemvalue="Application.Task1" />
++      <item itemvalue="Application.Main" />
++      <item itemvalue="Maven.Java [clean,package]" />
++    </list>
+     <recent_temporary>
+       <list>
++        <item itemvalue="Application.ru.nsu.mbogdanov.task6.Main" />
+         <item itemvalue="Application.Main" />
++        <item itemvalue="Application.Task1" />
+       </list>
+     </recent_temporary>
+   </component>
+   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+   <component name="TaskManager">
+     <task active="true" id="Default" summary="Default task">
+-      <changelist id="09d83710-3214-4202-847e-37c3ae80e601" name="Changes" comment="Я меняю систему сборки на maven. Мне очень не понравилось как gradle сигналы обрабатывает, надеюсь ничего не забыл" />
+-      <created>1696847490331</created>
++      <changelist id="8d9324cb-ec75-43e0-ad87-e9d89f4a2c83" name="Changes" comment="" />
++      <created>1696846906774</created>
+       <option name="number" value="Default" />
+       <option name="presentableId" value="Default" />
+-      <updated>1696847490331</updated>
+-      <workItem from="1696847491382" duration="433000" />
++      <updated>1696846906774</updated>
++      <workItem from="1696846907910" duration="364000" />
++      <workItem from="1696852776964" duration="6280000" />
++      <workItem from="1696903908086" duration="5991000" />
+     </task>
++    <task id="LOCAL-00001" summary="Моё решение 9 задачи">
++      <option name="closed" value="true" />
++      <created>1696910606771</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1696910606771</updated>
++    </task>
++    <option name="localTasksCounter" value="2" />
+     <servers />
+   </component>
+   <component name="TypeScriptGeneratedFilesManager">
+     <option name="version" value="3" />
+   </component>
+-  <component name="Vcs.Log.Tabs.Properties">
+-    <option name="TAB_STATES">
+-      <map>
+-        <entry key="MAIN">
+-          <value>
+-            <State />
+-          </value>
+-        </entry>
+-      </map>
+-    </option>
+-  </component>
+   <component name="VcsManagerConfiguration">
+-    <MESSAGE value="Я меняю систему сборки на maven. Мне очень не понравилось как gradle сигналы обрабатывает, надеюсь ничего не забыл" />
+-    <MESSAGE value="Я грёбанное позорище, с 3 раз не могу пакет нормально назвать" />
+-    <option name="LAST_COMMIT_MESSAGE" value="Я грёбанное позорище, с 3 раз не могу пакет нормально назвать" />
++    <MESSAGE value="Такс а вот 7 лаба с мавном" />
++    <MESSAGE value="Я меняю систему сборки на maven. Мне очень не понравилось как gradle сигналы обрабатывает" />
++    <MESSAGE value="Моё решение 9 задачи" />
++    <option name="LAST_COMMIT_MESSAGE" value="Моё решение 9 задачи" />
+   </component>
+ </project>
+\ No newline at end of file
