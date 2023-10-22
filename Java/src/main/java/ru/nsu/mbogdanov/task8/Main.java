@@ -8,11 +8,13 @@ public class Main {
     // Флаг для контроля выполнения потоков. Пока он true, потоки продолжают работать.
     public static volatile boolean keepRunning = true;
 
+    // Отслеживаем максимальную фаза у потоков
+    public static volatile int maxPhase = 0;
+
     public static void main(String[] args) {
 
         // Создаем объект Scanner для чтения ввода пользователя.
         Scanner inputScanner = new Scanner(System.in);
-
         // Просим пользователя указать количество потоков.
         System.out.println("Пожалуйста, введите кол-во потоков:");
 
@@ -29,12 +31,12 @@ public class Main {
         // Ограничиваем количество потоков до количества доступных процессорных ядер.
         numberOfThreads = Math.min(numberOfThreads, Runtime.getRuntime().availableProcessors());
 
-        // Создаем объект Phaser для синхронизации потоков.
+        inputScanner.close();
+
         Phaser synchronizationPhaser = new Phaser() {
             protected boolean onAdvance(int phase, int parties) {
-                // Когда все потоки завершат фазу, проверяем значение keepRunning.
-                // Если он false, прекращаем дальнейшую работу Фейзера.
-                return !keepRunning;
+                //Хотим узнать какая фаза максимальная
+                return phase >= maxPhase && !keepRunning;
             }
         };
 

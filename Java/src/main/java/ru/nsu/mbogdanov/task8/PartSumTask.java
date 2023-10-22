@@ -55,6 +55,7 @@ public class PartSumTask implements Runnable {
             // Определяем текущий шаг на основе текущей фазы
             long currentStep = this.overallStep * synchronizationPhaser.getPhase();
             // Вычисляем частичную сумму для текущего диапазона
+            Main.maxPhase = Math.max(Main.maxPhase, synchronizationPhaser.getPhase());
             for (long i = this.start + currentStep; i < this.start + count + currentStep; ++i) {
                 double currentTerm = 1.0 / (2.0 * i + 1.0);
                 partialSumValue += i % 2 == 0 ? currentTerm : -currentTerm;
@@ -62,5 +63,7 @@ public class PartSumTask implements Runnable {
             // Уведомляем фазер о завершении текущей итерации
             synchronizationPhaser.arriveAndAwaitAdvance();
         } while (!synchronizationPhaser.isTerminated());
+        //В конце посмотрим на каких фазах потоки
+        System.out.println("Айди потока: " + Thread.currentThread().getId() + ", Текущая фаза: " + synchronizationPhaser.getPhase());
     }
 }
