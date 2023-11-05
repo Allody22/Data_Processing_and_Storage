@@ -10,11 +10,8 @@ public class SyncPrinter {
      */
     private final Object LOCK = new Object();
 
-    /**
-     * Переменные для отслеживания, какая нить должна печатать.
-     */
-    private boolean shouldPrintMain = true;
-    private boolean shouldPrintChild = false;
+    // Теперь только один флаг, который определяет очередность печати
+    private boolean isMainTurn = true;
 
     /**
      * Метод для вывода строки из главной нити.
@@ -25,7 +22,7 @@ public class SyncPrinter {
     public void printFromMain(int index) {
         //Вот тут мьютекст - то есть один из инструментов синхронизации
         synchronized (LOCK) {
-            while (!shouldPrintMain) {
+            while (!isMainTurn) {
                 try {
                     LOCK.wait();
                 } catch (InterruptedException e) {
@@ -33,8 +30,7 @@ public class SyncPrinter {
                 }
             }
             System.out.println(index + " от главной нити");
-            shouldPrintMain = false;
-            shouldPrintChild = true;
+            isMainTurn = false;
             LOCK.notifyAll();
         }
     }
@@ -48,7 +44,7 @@ public class SyncPrinter {
     public void printFromChild(int index) {
         //Вот тут мьютекст - то есть один из инструментов синхронизации
         synchronized (LOCK) {
-            while (!shouldPrintChild) {
+            while (isMainTurn) {
                 try {
                     LOCK.wait();
                 } catch (InterruptedException e) {
@@ -56,8 +52,7 @@ public class SyncPrinter {
                 }
             }
             System.out.println(index + " от новой нити");
-            shouldPrintMain = true;
-            shouldPrintChild = false;
+            isMainTurn = true;
             LOCK.notifyAll();
         }
     }
