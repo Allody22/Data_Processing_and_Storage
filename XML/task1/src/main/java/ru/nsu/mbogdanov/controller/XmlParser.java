@@ -382,20 +382,20 @@ public class XmlParser {
         System.out.println("\nНачинаем делать данные приличными");
         var data = extractingOfFileIdsInformation(originalData);
         var oneIdToOnePerson = data.getIdsPairs();
-        var noIdsArrayTwo = data.getNoIds();
+        var noIdsArray = data.getNoIds();
 
         System.out.println("\nИщем айдишники для имён, которые остались без айди");
-        var fullInfoArray = findIdsForAllNames(noIdsArrayTwo, oneIdToOnePerson);
+        var fullInfoArray = findIdsForAllNames(noIdsArray, oneIdToOnePerson);
         // Проверяем, что никакого человека не потеряли
-        if (oneIdToOnePerson.size() != peopleCount) {
+        if (fullInfoArray.size() != peopleCount) {
             throw new RuntimeException("Ожидаемое количество людей: " + peopleCount +
                     ", но найдено уникальных записей: " + oneIdToOnePerson.size());
         }
-        if (!oneIdToOnePerson.values().parallelStream().allMatch(x -> x.getFirstName() != null && x.getLastName() != null)) {
+        if (!fullInfoArray.values().parallelStream().allMatch(x -> x.getFirstName() != null && x.getLastName() != null)) {
             throw new RuntimeException("Не все записи имеют имена и фамилии");
         }
 
-        if (!noIdsArrayTwo.parallelStream().allMatch(x -> x.getFirstName() != null && x.getLastName() != null)) {
+        if (!noIdsArray.parallelStream().allMatch(x -> x.getFirstName() != null && x.getLastName() != null)) {
             throw new RuntimeException("Не все записи без айди имеют имена и фамилии");
         }
 

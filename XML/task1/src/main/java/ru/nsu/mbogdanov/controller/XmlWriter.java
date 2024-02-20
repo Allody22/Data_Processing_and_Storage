@@ -46,18 +46,18 @@ public class XmlWriter {
                 writeSetElements(writer, "daughtersName", person.getDaughtersName());
 
                 writeSetElements(writer, "siblingsId", person.getSiblingsId());
-                writeSetElements(writer, "brothersId", person.getBrothersId());
-                writeSetElements(writer, "sistersId", person.getSistersId());
-                writeSetElements(writer, "siblingsName", person.getSiblingsName());
-                writeSetElements(writer, "brothersName", person.getBrothersName());
-                writeSetElements(writer, "sistersName", person.getSistersName());
+//                writeSetElements(writer, "brothersId", person.getBrothersId());
+//                writeSetElements(writer, "sistersId", person.getSistersId());
+//                writeSetElements(writer, "siblingsName", person.getSiblingsName());
+//                writeSetElements(writer, "brothersName", person.getBrothersName());
+//                writeSetElements(writer, "sistersName", person.getSistersName());
 
                 writeElement(writer, "spouseId", person.getSpouseId());
                 writeElement(writer, "husbandId", person.getHusbandId());
                 writeElement(writer, "wifeId", person.getWifeId());
-                writeElement(writer, "spouseName", person.getSpouseName());
-                writeElement(writer, "husbandName", person.getHusbandName());
-                writeElement(writer, "wifeName", person.getWifeName());
+//                writeElement(writer, "spouseName", person.getSpouseName());
+//                writeElement(writer, "husbandName", person.getHusbandName());
+//                writeElement(writer, "wifeName", person.getWifeName());
 
                 writeElement(writer, "childrenCount", person.getChildrenCount() != null ? person.getChildrenCount().toString() : null);
                 writeElement(writer, "siblingsCount", person.getSiblingsCount() != null ? person.getSiblingsCount().toString() : null);
