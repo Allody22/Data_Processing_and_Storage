@@ -1,0 +1,18 @@
+<person id="P397555">
+    <siblings val="P397556"/>
+    <father>Angelique Cowper</father>
+</person>
+
+<person>
+<surname value="Cowper"/>
+<fullname>
+    <first>Angelique</first>
+    <family>Cowper</family>
+</fullname>
+<id value="P388831"/>
+</person>
+
+<children>
+    <child>Tajuana Cowper</child>
+    <person id="P397554">
+</children>
