@@ -1,0 +1,427 @@
+﻿openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: 'http://localhost:8080'
+    description: Generated server url
+tags:
+  - name: 0. Structure Controller
+    description: Контроллер для первого задания для составления цены о неизвестных рейсах.
+  - name: 2. User Controller
+    description: Получение рейсов и аэропортов.
+  - name: 1. User Controller
+    description: 'Действия пользователей (покупка билета, проверка билета).'
+paths:
+  /api/v1/user/races/check-in:
+    post:
+      tags:
+        - check-in
+        - 1. User Controller
+      summary: Регистрация на рейс
+      description: >-
+        Позволяет пассажиру выполнить онлайн регистрацию на рейс, используя
+        информация, полученную после покупки. Пользователю возвращается его
+        boarding pass и еще раз информация о месте, чтобы предоставить это всё
+        конкретно при посадке.
+      operationId: checkInFlight
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInRequest'
+        required: true
+      responses:
+        '200':
+          description: Регистрация на рейс выполнена успешно. Пользователь может лететь.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataResponse'
+        '400':
+          description: 'Некорректный запрос, проверьте предоставленные данные'
+          content:
+            '*/*':
+              schema:
+                type: object
+        '404':
+          description: Бронирование не найдено
+          content:
+            '*/*':
+              schema:
+                type: object
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/v1/user/races/book:
+    post:
+      tags:
+        - booking
+        - 1. User Controller
+        - races
+      summary: Бронирование рейса
+      description: >-
+        Передаётся ID рейса, класс билета и информация о человеке, необходимая
+        для бронирования.Запрос возвращает сгенерированный ID билета
+      operationId: bookRace
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRaceRequest'
+        required: true
+      responses:
+        '200':
+          description: 'Рейс успешно забронирован, уникальный айди билета создан'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/v1/structure/price:
+    post:
+      tags:
+        - 0. Structure Controller
+        - prices
+        - structure
+      summary: Запрос для первичного заполнения таблицы price_full_one_race_analysis.
+      description: >-
+        Мы извлекаем всю известную информацию о полётах, билета, самолёт из
+        таблиц созданных из базы данных по заданию и систематизируем всю эту
+        информацию в нашей таблице.
+      operationId: structurePriceForAllRaces
+      responses:
+        '200':
+          description: True при успешном выполнении запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataResponse'
+        '500':
+          description: Какая-то внутренняя ошибка на сервере
+  /api/v1/races/search:
+    post:
+      tags:
+        - 2. User Controller
+        - races
+      summary: Получение списка маршрутов между двумя точками с опциональными фильтрами
+      description: >-
+        Возвращает список маршрутов с учетом начальной и конечной точки, даты
+        отправления, класса бронирования и максимального количества пересадок.
+      operationId: listRoutes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteSearchRequest'
+        required: true
+      responses:
+        '200':
+          description: Список найденных маршрутов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteSearchRequest'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            '*/*':
+              schema:
+                type: object
+  /api/v1/calculate/price:
+    post:
+      tags:
+        - 0. Structure Controller
+        - prices
+        - structure
+      summary: >-
+        Заполнение как можно большего количества информации в таблице
+        price_full_one_race_analysis.
+      description: >-
+        Теперь мы уже извлекаем всю известную информацию о рейсах из нашей
+        собственной таблицеи примерно высчитываем информации о будущих рейсах,
+        поездках.
+      operationId: calculatePriceForMissingRaces
+      responses:
+        '200':
+          description: True при успешном заполнение таблицы
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataResponse'
+        '500':
+          description: Какая-то внутренняя ошибка на сервере
+  '/api/v1/races/get/departure/{airport}':
+    get:
+      tags:
+        - 2. User Controller
+        - races
+        - airports
+      summary: Получаем расписания улетающих самолётов.
+      description: 'Получение списка всех рейсов, улетающих из аэропорта по его названию.'
+      operationId: getAirportsDepartureRaces
+      parameters:
+        - name: airport
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Список рейсов, улетающих из аэропорта'
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Какая-то внутренняя ошибка на сервере
+  /api/v1/races/get/available/cities:
+    get:
+      tags:
+        - 2. User Controller
+        - cities
+        - flights
+      summary: 'Получаем все города, которые участвуют в перелётах.'
+      description: >-
+        Получаем список городов, из которых отправляются рейсы или в которые
+        прилетают
+      operationId: getAvailableCities
+      responses:
+        '200':
+          description: Список с названиями городов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataResponse'
+        '500':
+          description: Какая-то внутренняя ошибка на сервере
+  /api/v1/races/get/available/airports:
+    get:
+      tags:
+        - 2. User Controller
+        - flights
+        - airports
+      summary: 'Получаем все аэропорты, участвующие в перелётах.'
+      description: >-
+        Получаем список аэропортов, из которых отправляются рейсы или в которые
+        прилетают
+      operationId: getAllAvailableAirports
+      responses:
+        '200':
+          description: Список со строковыми названиями аэропортов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataResponse'
+        '500':
+          description: Какая-то внутренняя ошибка на сервере
+  '/api/v1/races/get/arrival/{airport}':
+    get:
+      tags:
+        - 2. User Controller
+        - races
+        - airports
+      summary: Получаем расписания прилетающих самолётов.
+      description: 'Получение списка всех рейсов, прилетающих в аэропорт по его названию.'
+      operationId: getAirportsArrivalRaces
+      parameters:
+        - name: airport
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Список рейсов, прибывающих в аэропорт'
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Какая-то внутренняя ошибка на сервере
+  '/api/v1/races/get/airports/{city}':
+    get:
+      tags:
+        - 2. User Controller
+        - city
+        - airports
+      summary: Получаем список всех аэропортов в указанном городе.
+      description: 'Возвращает список аэропортов, расположенных в заданном городе.'
+      operationId: getAllAirportsInCity
+      parameters:
+        - name: city
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Список аэропортов в городе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataResponse'
+        '500':
+          description: Какая-то внутренняя ошибка на сервере
+  /api/v1/get/races_without_total_price:
+    get:
+      tags:
+        - average
+        - 0. Structure Controller
+        - prices
+      summary: >-
+        Получаем всю информацию о рейсах, полная цена за поездку о которых
+        неизвестна.
+      description: >-
+        Получаем всю информацию о рейсах, полная цена за поездку о которых
+        неизвестна
+      operationId: getRacesWithoutTotalPrice
+      responses:
+        '200':
+          description: Массив с информацией об этих массивах
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Какая-то внутренняя ошибка на сервере
+  /api/v1/get/races_without_average_price:
+    get:
+      tags:
+        - average
+        - 0. Structure Controller
+        - prices
+      summary: >-
+        Получаем всю информацию о рейсах, средняя цена за один билет которых
+        неизвестна.
+      description: >-
+        Получаем всю информацию о рейсах, средняя цена за один билет которых
+        неизвестна
+      operationId: getRacesWithoutAveragePrice
+      responses:
+        '200':
+          description: Массив с информацией об этих массивах
+          content:
+            application/json:
+              schema:
+                type: string
+        '500':
+          description: Какая-то внутренняя ошибка на сервере
+components:
+  schemas:
+    CheckInRequest:
+      required:
+        - bookRef
+        - fareCondition
+        - seatNumber
+      type: object
+      properties:
+        bookRef:
+          type: string
+          description: Ссылка на созданную сущность бронирования.
+          example: 06B046
+        fareCondition:
+          type: string
+          description: 'Класс билета (бизнес, эконом или комфорт).'
+          example: Economy
+        seatNumber:
+          type: string
+          description: >-
+            Номер места. Может быть как просто число так и комбинация число +
+            строка.
+          example: 13B
+    DataResponse:
+      type: object
+      properties:
+        data:
+          type: boolean
+          description: Результат операции.
+          example: true
+    BookingRaceRequest:
+      required:
+        - fareCondition
+        - flightId
+        - passengerId
+        - passengerName
+        - price
+        - seatNumber
+      type: object
+      properties:
+        flightId:
+          type: string
+          description: Айди рейса.
+          example: '123321'
+        fareCondition:
+          type: string
+          description: 'Класс билета (бизнес, эконом или комфорт).'
+          example: Economy
+        seatNumber:
+          type: string
+          description: >-
+            Номер места. Может быть как просто число так и комбинация число +
+            строка.
+          example: 13B
+        price:
+          type: number
+          description: Цена бронирования.
+          example: 12343
+        passengerId:
+          type: string
+          description: Айди пассажира.
+          example: 8149 604011
+        passengerName:
+          type: string
+          description: ФИО пассажира.
+          example: TAMARA ZAYCEVA
+        passengerContact:
+          type: string
+          description: Контакты пассажира.
+          example: '{"email":"t_petrova1970@postgrespro.ru","phone":"+70886117503"}'
+    BookingResponse:
+      type: object
+      properties:
+        ticketNumber:
+          type: string
+          description: Сгенерированный номер билета.
+          example: 12321 321312
+        bookingRef:
+          type: string
+          description: Сущность бронирования.
+          example: 2312 df
+    RouteSearchRequest:
+      required:
+        - departureDate
+        - from
+        - maxConnections
+        - to
+      type: object
+      properties:
+        from:
+          type: string
+          description: Пункт отправления (город или аэропорт).
+          example: Барнаул
+        to:
+          type: string
+          description: Пункт прибытия (город или аэропорт).
+          example: НГУ
+        departureDate:
+          type: string
+          description: Дата вылета.
+          format: date-time
+        bookingClass:
+          type: string
+          description: 'Класс билета (эконом, бизнес или комфорт).'
+          example: Economy
+        maxConnections:
+          type: integer
+          description: Максимально количество пересадок. При 0 прямой рейс.
+          format: int32
+          example: 0

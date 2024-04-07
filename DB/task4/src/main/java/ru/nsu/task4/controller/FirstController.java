@@ -6,12 +6,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import ru.nsu.task4.model.PriceFullOneRaceAnalysis;
 import ru.nsu.task4.payloads.response.DataResponse;
 import ru.nsu.task4.services.FlightsPriceService;
@@ -21,6 +21,7 @@ import ru.nsu.task4.services.FlightsPriceService;
 @Slf4j
 @RequestMapping("/api/v1/")
 @AllArgsConstructor
+@Tag(name = "0. Structure Controller", description = "Контроллер для первого задания для составления цены о неизвестных рейсах.")
 public class FirstController {
     private final FlightsPriceService flightsPriceService;
 

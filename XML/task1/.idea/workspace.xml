@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="c19aa2d3-61d4-4e22-a81c-212a98a93143" name="Changes" comment="Небольшой фикс имён" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/../.." value="xml_1" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 2
+}</component>
+  <component name="ProjectId" id="2bDya8ZxYQDR3zmk4lW6XFCRBkd" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MainChecker.executor&quot;: &quot;Run&quot;,
+    &quot;Application.MainParser.executor&quot;: &quot;Run&quot;,
+    &quot;Application.SituationsMain.executor&quot;: &quot;Run&quot;,
+    &quot;Application.XmlWriter.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ru.nsu.mbogdanov.controller.XmlWriter.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ru.nsu.mbogdanov.trying.MainParser.executor&quot;: &quot;Run&quot;,
+    &quot;Application.ru.nsu.mbogdanov.trying.XmlWriter.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.task1 [clean,package].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;xml__2&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dom/Desktop/ХОИ/XML/task1/src/main/java/ru/nsu/mbogdanov/trying&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Dom\Desktop\ХОИ\XML\task1\src\main\java\ru\nsu\mbogdanov\trying" />
+      <recent name="C:\Users\Dom\Desktop\ХОИ\XML\task1\src\main\resources\test" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="test" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.SituationsMain">
+    <configuration name="MainParser" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="ru.nsu.mbogdanov.MainParser" />
+      <module name="task1" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ru.nsu.mbogdanov.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SituationsMain" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="ru.nsu.mbogdanov.situations.SituationsMain" />
+      <module name="task1" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ru.nsu.mbogdanov.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ru.nsu.mbogdanov.controller.XmlWriter" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="ru.nsu.mbogdanov.controller.XmlWriter" />
+      <module name="task1" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="ru.nsu.mbogdanov.model.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="task1 [clean,package]" type="MavenRunConfiguration" factoryName="Maven" nameIsGenerated="true">
+      <MavenSettings>
+        <option name="myGeneralSettings" />
+        <option name="myRunnerSettings" />
+        <option name="myRunnerParameters">
+          <MavenRunnerParameters>
+            <option name="cmdOptions" />
+            <option name="profiles">
+              <set />
+            </option>
+            <option name="goals">
+              <list>
+                <option value="clean" />
+                <option value="package" />
+              </list>
+            </option>
+            <option name="multimoduleDir" />
+            <option name="pomFileName" />
+            <option name="profilesMap">
+              <map />
+            </option>
+            <option name="projectsCmdOptionValues">
+              <list />
+            </option>
+            <option name="resolveToWorkspace" value="false" />
+            <option name="workingDirPath" value="$PROJECT_DIR$" />
+          </MavenRunnerParameters>
+        </option>
+      </MavenSettings>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Application.ru.nsu.mbogdanov.controller.XmlWriter" />
+      <item itemvalue="Application.SituationsMain" />
+      <item itemvalue="Application.MainParser" />
+      <item itemvalue="Maven.task1 [clean,package]" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.MainParser" />
+        <item itemvalue="Application.SituationsMain" />
+        <item itemvalue="Application.ru.nsu.mbogdanov.controller.XmlWriter" />
+        <item itemvalue="Application.MainParser" />
+        <item itemvalue="Application.SituationsMain" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="jdk-18.0.2-corretto-18.0.2-f644763e9732-da6bd485" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="c19aa2d3-61d4-4e22-a81c-212a98a93143" name="Changes" comment="" />
+      <created>1705764006147</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1705764006147</updated>
+      <workItem from="1705764007187" duration="1888000" />
+      <workItem from="1705807954254" duration="2788000" />
+      <workItem from="1705814253628" duration="3801000" />
+      <workItem from="1705922946217" duration="5104000" />
+      <workItem from="1705935060929" duration="1282000" />
+      <workItem from="1706005102875" duration="1833000" />
+      <workItem from="1706076523850" duration="3952000" />
+      <workItem from="1706100673080" duration="4152000" />
+      <workItem from="1706158173376" duration="733000" />
+      <workItem from="1706239440895" duration="1277000" />
+      <workItem from="1706346655403" duration="728000" />
+      <workItem from="1706502282168" duration="619000" />
+      <workItem from="1706526242198" duration="7000" />
+      <workItem from="1706707026102" duration="2165000" />
+      <workItem from="1707055038252" duration="671000" />
+      <workItem from="1707130385373" duration="811000" />
+      <workItem from="1707133732534" duration="2038000" />
+      <workItem from="1707189254905" duration="1365000" />
+      <workItem from="1707662082576" duration="4572000" />
+      <workItem from="1707709355917" duration="11805000" />
+      <workItem from="1707742430790" duration="11892000" />
+      <workItem from="1707792965322" duration="1538000" />
+      <workItem from="1707797779070" duration="222000" />
+      <workItem from="1707798735136" duration="1627000" />
+      <workItem from="1707802864035" duration="6668000" />
+      <workItem from="1707811223084" duration="3208000" />
+      <workItem from="1707827921814" duration="12258000" />
+      <workItem from="1707887195800" duration="79000" />
+      <workItem from="1707893309266" duration="3686000" />
+      <workItem from="1707914100873" duration="9282000" />
+      <workItem from="1707964470212" duration="3718000" />
+      <workItem from="1707968607940" duration="788000" />
+      <workItem from="1707969668170" duration="5027000" />
+      <workItem from="1708232975813" duration="8195000" />
+      <workItem from="1708314032136" duration="766000" />
+      <workItem from="1708345684109" duration="11478000" />
+      <workItem from="1708396250022" duration="4464000" />
+      <workItem from="1708402227965" duration="2599000" />
+      <workItem from="1708407477820" duration="10417000" />
+      <workItem from="1708420927524" duration="3382000" />
+      <workItem from="1708435513122" duration="717000" />
+      <workItem from="1708437222332" duration="11000" />
+      <workItem from="1708438617369" duration="2864000" />
+      <workItem from="1708486157478" duration="858000" />
+      <workItem from="1708487134103" duration="44000" />
+      <workItem from="1708496020154" duration="214000" />
+      <workItem from="1708496584532" duration="6000" />
+      <workItem from="1708568969269" duration="607000" />
+      <workItem from="1708574462322" duration="1199000" />
+      <workItem from="1708579443302" duration="27000" />
+      <workItem from="1708614444948" duration="343000" />
+      <workItem from="1708763145281" duration="53000" />
+      <workItem from="1708780117626" duration="78000" />
+      <workItem from="1708788621495" duration="65000" />
+      <workItem from="1708831916954" duration="626000" />
+    </task>
+    <task id="LOCAL-00001" summary="1 задание по xml">
+      <option name="closed" value="true" />
+      <created>1708422653488</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1708422653488</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Небольшой фикс имён">
+      <option name="closed" value="true" />
+      <created>1708439929055</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1708439929055</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="1 задание по xml" />
+    <MESSAGE value="Небольшой фикс имён" />
+    <option name="LAST_COMMIT_MESSAGE" value="Небольшой фикс имён" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
