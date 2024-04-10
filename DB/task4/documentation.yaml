@@ -8,7 +8,7 @@ servers:
 tags:
   - name: 0. Structure Controller
     description: Контроллер для первого задания для составления цены о неизвестных рейсах.
-  - name: 2. User Controller
+  - name: 2. Airport Controller
     description: Получение рейсов и аэропортов.
   - name: 1. User Controller
     description: 'Действия пользователей (покупка билета, проверка билета).'
@@ -110,7 +110,7 @@ paths:
   /api/v1/races/search:
     post:
       tags:
-        - 2. User Controller
+        - 2. Airport Controller
         - races
       summary: Получение списка маршрутов между двумя точками с опциональными фильтрами
       description: >-
@@ -162,7 +162,7 @@ paths:
   '/api/v1/races/get/departure/{airport}':
     get:
       tags:
-        - 2. User Controller
+        - 2. Airport Controller
         - races
         - airports
       summary: Получаем расписания улетающих самолётов.
@@ -186,7 +186,7 @@ paths:
   /api/v1/races/get/available/cities:
     get:
       tags:
-        - 2. User Controller
+        - 2. Airport Controller
         - cities
         - flights
       summary: 'Получаем все города, которые участвуют в перелётах.'
@@ -206,7 +206,7 @@ paths:
   /api/v1/races/get/available/airports:
     get:
       tags:
-        - 2. User Controller
+        - 2. Airport Controller
         - flights
         - airports
       summary: 'Получаем все аэропорты, участвующие в перелётах.'
@@ -226,7 +226,7 @@ paths:
   '/api/v1/races/get/arrival/{airport}':
     get:
       tags:
-        - 2. User Controller
+        - 2. Airport Controller
         - races
         - airports
       summary: Получаем расписания прилетающих самолётов.
@@ -250,7 +250,7 @@ paths:
   '/api/v1/races/get/airports/{city}':
     get:
       tags:
-        - 2. User Controller
+        - 2. Airport Controller
         - city
         - airports
       summary: Получаем список всех аэропортов в указанном городе.

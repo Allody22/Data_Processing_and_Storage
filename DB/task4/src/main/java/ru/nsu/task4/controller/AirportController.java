@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
 @Slf4j
 @RequestMapping("/api/v1/races")
 @AllArgsConstructor
-@Tag(name = "2. User Controller", description = "Получение рейсов и аэропортов.")
+@Tag(name = "2. Airport Controller", description = "Получение рейсов и аэропортов.")
 public class AirportController {
 
     private final IAirportService airportService;
