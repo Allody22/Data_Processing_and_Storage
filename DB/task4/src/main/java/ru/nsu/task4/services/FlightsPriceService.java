@@ -4,12 +4,21 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.nsu.task4.model.*;
-import ru.nsu.task4.repository.*;
+import ru.nsu.task4.model.Flights;
+import ru.nsu.task4.model.PriceFullOneRaceAnalysis;
+import ru.nsu.task4.model.Seats;
+import ru.nsu.task4.model.TicketFlights;
+import ru.nsu.task4.repository.FlightsRepository;
+import ru.nsu.task4.repository.PriceForFullRaceRepository;
+import ru.nsu.task4.repository.SeatsRepository;
+import ru.nsu.task4.repository.TicketsFlightsRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
