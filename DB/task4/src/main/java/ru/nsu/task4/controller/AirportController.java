@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.nsu.task4.payloads.requests.RouteSearchRequest;
-import ru.nsu.task4.payloads.response.ArrivalFlights;
-import ru.nsu.task4.payloads.response.CitiesNamesResponse;
-import ru.nsu.task4.payloads.response.DataResponse;
-import ru.nsu.task4.payloads.response.DepartureFlights;
+import ru.nsu.task4.payloads.response.*;
 import ru.nsu.task4.services.intertaces.IAirportService;
 
 import javax.validation.Valid;
@@ -52,28 +49,27 @@ public class AirportController {
             tags = {"airports", "flights"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Список со строковыми названиями аэропортов",
-                    content = {@Content(schema = @Schema(implementation = DataResponse.class), mediaType = "application/json")}),
+                    content = {@Content(schema = @Schema(implementation = AirportsNamesResponse[].class), mediaType = "application/json")}),
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/available/airports")
     @Transactional
     public ResponseEntity<?> getAllAvailableAirports() {
-        airportService.getAllAvailableAirports();
-        return ResponseEntity.ok(new DataResponse(true));
+        return ResponseEntity.ok(airportService.getAllAvailableAirports());
     }
 
     @Operation(
             summary = "Получаем список всех аэропортов в указанном городе.",
-            description = "Возвращает список аэропортов, расположенных в заданном городе.",
+            description = "Возвращает список аэропортов, расположенных в заданном городе." +
+                    "Название города должно точно совпадать с русским или английским названием в базе данных.",
             tags = {"airports", "city"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Список аэропортов в городе",
-                    content = {@Content(schema = @Schema(implementation = DataResponse.class), mediaType = "application/json")}),
+                    content = {@Content(schema = @Schema(implementation = AirportsNamesResponse[].class), mediaType = "application/json")}),
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/airports/{city}")
     @Transactional
     public ResponseEntity<?> getAllAirportsInCity(@Valid @NotNull @PathVariable String city) {
-        airportService.getAllAirportsInCity(city);
-        return ResponseEntity.ok(new DataResponse(true));
+        return ResponseEntity.ok(airportService.getAllAirportsInCity(city));
     }
 
     @Operation(

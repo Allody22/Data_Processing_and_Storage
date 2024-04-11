@@ -10,13 +10,11 @@ import ru.nsu.task4.payloads.requests.BookingRaceRequest;
 import ru.nsu.task4.payloads.requests.CheckInRequest;
 import ru.nsu.task4.payloads.response.*;
 import ru.nsu.task4.repository.AirportRepository;
+import ru.nsu.task4.repository.PriceForFullRaceRepository;
 import ru.nsu.task4.services.intertaces.IAirportService;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -26,6 +24,8 @@ public class AirportService implements IAirportService {
     private final AirportRepository airportRepository;
 
     private final ObjectMapper objectMapper;
+
+    private final PriceForFullRaceRepository priceForFullRaceRepository;
 
     @Override
     @Transactional
@@ -43,18 +43,48 @@ public class AirportService implements IAirportService {
     }
 
     @Override
-    public void getAllAvailableAirports() {
+    @Transactional
+    public Set<AirportsNamesResponse> getAllAvailableAirports() {
+        Set<AirportsNamesResponse> airportsNamesResponses = new HashSet<>();
+        for (Airport airport : airportRepository.findAll()) {
+            try {
+                AirportsNamesResponse airportsNamesResponse = objectMapper.readValue(airport.getAirportName(), AirportsNamesResponse.class);
+                airportsNamesResponses.add(airportsNamesResponse);
+            } catch (IOException e) {
+                log.error("Error parsing city JSON for airport: {}", airport.getAirportCode(), e);
+            }
+        }
+        return airportsNamesResponses;
 
     }
 
     @Override
-    public void getAllAirportsInCity(String city) {
-
+    @Transactional
+    public Set<AirportsNamesResponse> getAllAirportsInCity(String city) {
+        Set<AirportsNamesResponse> airportsNamesResponses = new HashSet<>();
+        for (Airport airport : airportRepository.findAllAirportsInTheCityByRuOrEnglishName(city)) {
+            try {
+                AirportsNamesResponse airportsNamesResponse = objectMapper.readValue(airport.getAirportName(), AirportsNamesResponse.class);
+                airportsNamesResponses.add(airportsNamesResponse);
+            } catch (IOException e) {
+                log.error("Error parsing city JSON for airport: {}", airport.getAirportCode(), e);
+            }
+        }
+        return airportsNamesResponses;
     }
 
     @Override
     public List<ArrivalFlights> getArrivalTimetableOfTheAirport(String airport) {
-        return List.of();
+        List<ArrivalFlights> arrivalFlights = new ArrayList<>();
+//        for (var flightInfo : priceForFullRaceRepository.findAll()){
+//            try {
+//                var currentArrivalFlight = objectMapper.readValue(airport, AirportsNamesResponse.class);
+//                airportsNamesResponses.add(airportsNamesResponse);
+//            } catch (IOException e) {
+//                log.error("Error parsing city JSON for airport: {}", airport.getAirportCode(), e);
+//            }
+//        }
+        return arrivalFlights;
     }
 
     @Override

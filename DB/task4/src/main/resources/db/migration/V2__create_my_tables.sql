@@ -4,6 +4,8 @@ CREATE TABLE price_full_one_race_analysis
     flight_no VARCHAR(255), -- Добавлено это поле
     departure_time TIMESTAMPTZ,
     arrival_time TIMESTAMPTZ,
+    arrival_airport_name VARCHAR(255),
+    departure_airport_name VARCHAR(255),
     departure_city VARCHAR(255),
     arrival_city VARCHAR(255),
     total_price NUMERIC, -- Суммарная цена за все билеты на рейс

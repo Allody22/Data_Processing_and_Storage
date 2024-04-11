@@ -27,6 +27,13 @@ public class PriceFullOneRaceAnalysis {
     @Column(name = "arrival_time")
     private OffsetDateTime arrivalTime;
 
+//    @Column(name = "arrival_airport_name", columnDefinition = "jsonb")
+    @Column(name = "arrival_airport_name")
+    private String arrivalAirportName;
+
+    @Column(name = "departure_airport_name")
+    private String departureAirportName;
+
     @Column(name = "departure_city")
     private String departureCity;
 

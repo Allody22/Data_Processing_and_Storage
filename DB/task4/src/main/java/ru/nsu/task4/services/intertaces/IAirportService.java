@@ -20,15 +20,18 @@ public interface IAirportService {
 
     /**
      * Получение всех доступных аэропортов отправки и прибытия.
+     *
+     * @return список всех аэропортов с их названием на русском и английском.
      */
-    void getAllAvailableAirports();
+    Set<AirportsNamesResponse> getAllAvailableAirports();
 
     /**
      * Получение списка всех аэропортов в городе.
      *
-     * @param city имя города.
+     * @param city имя города на русском или английском.
+     * @return русское и английское название всех аэропортов внутри города.
      */
-    void getAllAirportsInCity(String city);
+    Set<AirportsNamesResponse> getAllAirportsInCity(String city);
 
 
     /**

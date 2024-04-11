@@ -1,7 +1,11 @@
 package ru.nsu.task4.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+import ru.nsu.task4.model.Airport;
 import ru.nsu.task4.model.PriceFullOneRaceAnalysis;
 
 import java.math.BigDecimal;
@@ -12,6 +16,10 @@ import java.util.Optional;
 public interface PriceForFullRaceRepository extends JpaRepository<PriceFullOneRaceAnalysis, Long> {
 
     Optional<PriceFullOneRaceAnalysis> findByFlightUid(Long flightUid);
+
+    @Transactional
+    @Query(value = "SELECT * FROM price_full_one_race_analysis WHERE (->>'en' = :cityName OR city->>'ru' = :cityName)", nativeQuery = true)
+    List<Airport> findAllArrivalRaces(@Param("cityName") String cityName);
 
     List<PriceFullOneRaceAnalysis> findAllByTotalPrice(BigDecimal bigDecimal);
 
