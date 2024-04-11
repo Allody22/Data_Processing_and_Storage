@@ -2,20 +2,20 @@ package ru.nsu.task4.services.intertaces;
 
 import ru.nsu.task4.payloads.requests.BookingRaceRequest;
 import ru.nsu.task4.payloads.requests.CheckInRequest;
-import ru.nsu.task4.payloads.response.ArrivalFlights;
-import ru.nsu.task4.payloads.response.BoardingPassResponse;
-import ru.nsu.task4.payloads.response.BookingResponse;
-import ru.nsu.task4.payloads.response.DepartureFlights;
+import ru.nsu.task4.payloads.response.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public interface IAirportService {
 
     /**
      * Получение всех доступных городов отправления и назначения.
+     *
+     * @return список всех городов с названием на английском и русском.
      */
-    void getAllAvailableCities();
+    Set<CitiesNamesResponse> getAllAvailableCities();
 
 
     /**

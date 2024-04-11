@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.nsu.task4.payloads.requests.RouteSearchRequest;
 import ru.nsu.task4.payloads.response.ArrivalFlights;
+import ru.nsu.task4.payloads.response.CitiesNamesResponse;
 import ru.nsu.task4.payloads.response.DataResponse;
 import ru.nsu.task4.payloads.response.DepartureFlights;
 import ru.nsu.task4.services.intertaces.IAirportService;
@@ -37,13 +38,12 @@ public class AirportController {
             tags = {"cities", "flights"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Список с названиями городов",
-                    content = {@Content(schema = @Schema(implementation = DataResponse.class), mediaType = "application/json")}),
+                    content = {@Content(schema = @Schema(implementation = CitiesNamesResponse[].class), mediaType = "application/json")}),
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/available/cities")
     @Transactional
     public ResponseEntity<?> getAvailableCities() {
-        airportService.getAllAvailableCities();
-        return ResponseEntity.ok(new DataResponse(true));
+        return ResponseEntity.ok(airportService.getAllAvailableCities());
     }
 
     @Operation(

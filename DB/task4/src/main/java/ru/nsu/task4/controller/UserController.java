@@ -28,9 +28,10 @@ public class UserController {
     private final IAirportService airportService;
 
 
-    @Operation(summary = "Бронирование рейса",
+    @Operation(summary = "Бронирование рейса.",
             description = "Передаётся ID рейса, класс билета и информация о человеке, необходимая для бронирования." +
-                    "Запрос возвращает сгенерированный ID билета",
+                    "Запрос возвращает сгенерированный ID билета." +
+                    "Человек получает ticketNumber из которого в будущем получит Boarding pass",
             tags = {"races", "booking"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Рейс успешно забронирован, уникальный айди билета создан",
@@ -47,7 +48,8 @@ public class UserController {
             description = "Позволяет пассажиру выполнить онлайн регистрацию на рейс, " +
                     "используя информация, полученную после покупки. " +
                     "Пользователю возвращается его boarding pass и еще раз информация о месте, " +
-                    "чтобы предоставить это всё конкретно при посадке.",
+                    "чтобы предоставить это всё конкретно при посадке. " +
+                    "Человек получает Boarding Pass, который он просто покажет при посадке",
             tags = {"check-in"})
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Регистрация на рейс выполнена успешно." +
