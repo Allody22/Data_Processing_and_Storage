@@ -1,8 +1,11 @@
 package ru.nsu.task4.model.ids;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Objects;
 
+@Data
 public class BoardingPassId implements Serializable {
     private String ticketNo; // Тип должен совпадать с типом в TicketFlights и Tickets
     private Long flightId; // Тип должен совпадать с типом в TicketFlights и Flights
@@ -15,7 +18,6 @@ public class BoardingPassId implements Serializable {
         this.flightId = flightId;
     }
 
-    // Геттеры, сеттеры, equals и hashCode
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

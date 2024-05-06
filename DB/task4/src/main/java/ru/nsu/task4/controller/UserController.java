@@ -1,6 +1,7 @@
 package ru.nsu.task4.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -40,7 +41,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     @PostMapping("/races/book")
-    public ResponseEntity<?> bookRace(@RequestBody BookingRaceRequest bookingRaceRequest) {
+    public ResponseEntity<?> bookRace(@RequestBody BookingRaceRequest bookingRaceRequest) throws JsonProcessingException {
         return ResponseEntity.ok(airportService.createBooking(bookingRaceRequest));
     }
 

@@ -7,9 +7,14 @@ import ru.nsu.task4.model.Seats;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SeatsRepository extends JpaRepository<Seats, String> {
+
+//    Seats findBySeatNoAndAircraft_AircraftCode(String seatNo, String aircraftCode);
+
+    Optional<Seats> findBySeatNoAndAircraft_AircraftCodeAndFareCondition(String seatNo, String aircraftCode, String fareCondition);
 
     @Transactional
     @Query(value = "SELECT * FROM seats", nativeQuery = true)

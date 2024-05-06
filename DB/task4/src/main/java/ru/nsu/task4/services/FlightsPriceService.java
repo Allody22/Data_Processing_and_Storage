@@ -124,7 +124,7 @@ public class FlightsPriceService {
             int totalSeats = currentFlight.getTotalSeatsNumber();
             BigDecimal averagePriceForOneSeat = BigDecimal.ZERO;
 
-            if (totalPrice != null && !totalPrice.equals(BigDecimal.ZERO)){
+            if (totalPrice != null && !totalPrice.equals(BigDecimal.ZERO)) {
                 if (totalSeatsSold > 0) {
                     averagePriceForOneSeat = totalPrice.divide(BigDecimal.valueOf(totalSeatsSold), 2, RoundingMode.HALF_UP);
                 } else if (totalSeats > 0) {

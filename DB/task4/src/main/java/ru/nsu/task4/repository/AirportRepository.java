@@ -18,6 +18,8 @@ public interface AirportRepository extends JpaRepository<Airport, String> {
     @Transactional
     List<Airport> findAllByCityContaining(String city);
 
+    //city->>'en' - Обращение к JSON-полю city, из которого извлекается значение по
+    //    ключу 'en' как текст (оператор ->> возвращает JSON-объект как текст).
     @Transactional
     @Query(value = "SELECT * FROM airports_data WHERE (city->>'en' = :cityName OR city->>'ru' = :cityName)", nativeQuery = true)
     List<Airport> findAllAirportsInTheCityByRuOrEnglishName(@Param("cityName") String cityName);

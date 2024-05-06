@@ -1,6 +1,7 @@
 package ru.nsu.task4.controller;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,7 +14,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.nsu.task4.payloads.requests.RouteSearchRequest;
-import ru.nsu.task4.payloads.response.*;
+import ru.nsu.task4.payloads.response.AirportsNamesResponse;
+import ru.nsu.task4.payloads.response.ArrivalFlights;
+import ru.nsu.task4.payloads.response.CitiesNamesResponse;
+import ru.nsu.task4.payloads.response.DepartureFlights;
 import ru.nsu.task4.services.intertaces.IAirportService;
 
 import javax.validation.Valid;
@@ -53,7 +57,7 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/available/airports")
     @Transactional
-    public ResponseEntity<?> getAllAvailableAirports() {
+    public ResponseEntity<?> getAllAvailableAirports() throws JsonProcessingException {
         return ResponseEntity.ok(airportService.getAllAvailableAirports());
     }
 
@@ -68,7 +72,7 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/airports/{city}")
     @Transactional
-    public ResponseEntity<?> getAllAirportsInCity(@Valid @NotNull @PathVariable String city) {
+    public ResponseEntity<?> getAllAirportsInCity(@Valid @NotNull @PathVariable String city) throws JsonProcessingException {
         return ResponseEntity.ok(airportService.getAllAirportsInCity(city));
     }
 
@@ -82,7 +86,7 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/arrival/{airport}")
     @Transactional
-    public ResponseEntity<?> getAirportsArrivalRaces(@Valid @NotNull @PathVariable String airport) {
+    public ResponseEntity<?> getAirportsArrivalRaces(@Valid @NotNull @PathVariable String airport) throws JsonProcessingException {
         return ResponseEntity.ok(airportService.getArrivalTimetableOfTheAirport(airport));
     }
 
@@ -96,10 +100,12 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/departure/{airport}")
     @Transactional
-    public ResponseEntity<?> getAirportsDepartureRaces(@Valid @NotNull @PathVariable String airport) {
+    public ResponseEntity<?> getAirportsDepartureRaces(@Valid @NotNull @PathVariable String airport) throws JsonProcessingException {
         return ResponseEntity.ok(airportService.getDepartureTimetableOfTheAirport(airport));
     }
 
+
+    //TODO доделать
     @Operation(summary = "Получение списка маршрутов между двумя точками с опциональными фильтрами",
             description = "Возвращает список маршрутов с учетом начальной и конечной точки, даты отправления, класса бронирования и максимального количества пересадок.",
             tags = {"races"})

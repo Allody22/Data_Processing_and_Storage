@@ -33,7 +33,7 @@ public class FirstController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "True при успешном выполнении запроса",
                     content = {@Content(schema = @Schema(implementation = DataResponse.class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "500",description = "Какая-то внутренняя ошибка на сервере",content = {@Content(schema = @Schema())})})
+            @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @PostMapping("/structure/price")
     @Transactional
     public ResponseEntity<?> structurePriceForAllRaces() {
@@ -50,7 +50,7 @@ public class FirstController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "True при успешном заполнение таблицы",
                     content = {@Content(schema = @Schema(implementation = DataResponse.class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "500",description = "Какая-то внутренняя ошибка на сервере",content = {@Content(schema = @Schema())})})
+            @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @PostMapping("/calculate/price")
     @Transactional
     public ResponseEntity<?> calculatePriceForMissingRaces() {
@@ -66,7 +66,7 @@ public class FirstController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Массив с информацией об этих массивах",
                     content = {@Content(schema = @Schema(implementation = PriceFullOneRaceAnalysis[].class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "500",description = "Какая-то внутренняя ошибка на сервере",content = {@Content(schema = @Schema())})})
+            @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/races_without_average_price")
     @Transactional
     public ResponseEntity<?> getRacesWithoutAveragePrice() {
@@ -81,7 +81,7 @@ public class FirstController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Массив с информацией об этих массивах",
                     content = {@Content(schema = @Schema(implementation = PriceFullOneRaceAnalysis[].class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "500",description = "Какая-то внутренняя ошибка на сервере",content = {@Content(schema = @Schema())})})
+            @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/races_without_total_price")
     @Transactional
     public ResponseEntity<?> getRacesWithoutTotalPrice() {

@@ -17,6 +17,8 @@ public interface PriceForFullRaceRepository extends JpaRepository<PriceFullOneRa
 
     Optional<PriceFullOneRaceAnalysis> findByFlightUid(Long flightUid);
 
+    Optional<PriceFullOneRaceAnalysis> findByFlightNumber(String flightNumber);
+
     @Transactional
     @Query(value = "SELECT * FROM price_full_one_race_analysis WHERE (->>'en' = :cityName OR city->>'ru' = :cityName)", nativeQuery = true)
     List<Airport> findAllArrivalRaces(@Param("cityName") String cityName);

@@ -6,5 +6,5 @@ import ru.nsu.task4.model.Bookings;
 
 @Repository
 public interface BookingsRepository extends JpaRepository<Bookings, String> {
-
+    boolean existsByBookRef(String bookRef);
 }

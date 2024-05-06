@@ -1,5 +1,6 @@
 package ru.nsu.task4.services.intertaces;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import ru.nsu.task4.payloads.requests.BookingRaceRequest;
 import ru.nsu.task4.payloads.requests.CheckInRequest;
 import ru.nsu.task4.payloads.response.*;
@@ -23,7 +24,7 @@ public interface IAirportService {
      *
      * @return список всех аэропортов с их названием на русском и английском.
      */
-    Set<AirportsNamesResponse> getAllAvailableAirports();
+    Set<AirportsNamesResponse> getAllAvailableAirports() throws JsonProcessingException;
 
     /**
      * Получение списка всех аэропортов в городе.
@@ -31,7 +32,7 @@ public interface IAirportService {
      * @param city имя города на русском или английском.
      * @return русское и английское название всех аэропортов внутри города.
      */
-    Set<AirportsNamesResponse> getAllAirportsInCity(String city);
+    Set<AirportsNamesResponse> getAllAirportsInCity(String city) throws JsonProcessingException;
 
 
     /**
@@ -41,7 +42,7 @@ public interface IAirportService {
      * @param airport название аэропорта.
      * @return Список рейсов, прибывающих в аэропорт.
      */
-    List<ArrivalFlights> getArrivalTimetableOfTheAirport(String airport);
+    List<ArrivalFlights> getArrivalTimetableOfTheAirport(String airport) throws JsonProcessingException;
 
     /**
      * Получение списка рейсов, улетающих из аэропорта.
@@ -50,7 +51,7 @@ public interface IAirportService {
      * @param airport название аэропорта.
      * @return Список рейсов, вылетающих из аэропорта.
      */
-    List<DepartureFlights> getDepartureTimetableOfTheAirport(String airport);
+    List<DepartureFlights> getDepartureTimetableOfTheAirport(String airport) throws JsonProcessingException;
 
     /**
      * Получение списка маршрутов между двумя точками с опциональными фильтрами.
@@ -69,7 +70,7 @@ public interface IAirportService {
      * @param bookingRaceRequest Вся информация, необходимая для бронирования билета.
      * @return сгенерированная информация о забронированном месте.
      */
-    BookingResponse createBooking(BookingRaceRequest bookingRaceRequest);
+    BookingResponse createBooking(BookingRaceRequest bookingRaceRequest) throws JsonProcessingException;
 
     /**
      * ЧекИн перед посадкой на рейс для проверки информации.

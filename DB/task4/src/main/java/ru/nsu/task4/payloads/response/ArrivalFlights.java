@@ -1,7 +1,6 @@
 package ru.nsu.task4.payloads.response;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,12 +15,15 @@ public class ArrivalFlights {
     private String dayOfWeek;
 
     @Schema(description = "Дата прилёта.", example = "2024-04-07")
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private String timeOfArrival;
 
     @Schema(description = "Айди поездки.", example = "123321")
     private String flightNo;
 
-    @Schema(description = "Пункт отправления.", example = "Барнаул")
-    private String origin;
+    @Schema(description = "Пункт отбытия на русском " +
+            "(откуда самолёт полетел в интересующий нас аэропорт).", example = "Барнаул")
+    private String originRu;
+
+    @Schema(description = "Пункт отбытия на английским.", example = "Новосибирск")
+    private String originEng;
 }

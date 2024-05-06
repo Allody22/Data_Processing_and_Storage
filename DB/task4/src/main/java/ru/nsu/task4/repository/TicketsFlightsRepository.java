@@ -11,6 +11,9 @@ import java.util.List;
 @Repository
 public interface TicketsFlightsRepository extends JpaRepository<TicketFlights, String> {
 
+
+    List<TicketFlights> findByFlight_FlightId(Long flightId);
+
     @Query("SELECT new ru.nsu.task4.model.dto.AvgPriceDto(tf.flight.flightId, AVG(tf.amount)) " +
             "FROM TicketFlights tf " +
             "GROUP BY tf.flight.flightId")
