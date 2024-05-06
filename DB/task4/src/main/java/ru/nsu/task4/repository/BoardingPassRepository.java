@@ -1,6 +1,7 @@
 package ru.nsu.task4.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.nsu.task4.model.BoardingPass;
 
@@ -10,4 +11,8 @@ import java.util.List;
 public interface BoardingPassRepository extends JpaRepository<BoardingPass, String> {
 
     List<BoardingPass> findByFlightIdAndSeatNo(Long flightId, String seatNo);
+
+    @Query("SELECT COALESCE(MAX(bp.boardingNo), 0) FROM BoardingPass bp WHERE bp.flightId = :flightId")
+    int findMaxBoardingNoByFlightId(Long flightId);
+
 }

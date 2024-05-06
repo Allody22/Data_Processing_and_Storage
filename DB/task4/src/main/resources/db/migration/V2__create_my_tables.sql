@@ -1,6 +1,6 @@
 CREATE TABLE price_full_one_race_analysis
 (
-    flight_uiq                 BIGINT UNIQUE NOT NULL, -- Изменено с VARCHAR(255) на BIGINT
+    flight_uiq                 BIGINT UNIQUE NOT NULL,
     flight_no                  VARCHAR(255),           -- Добавлено это поле
     departure_time             TIMESTAMPTZ,
     arrival_time               TIMESTAMPTZ,

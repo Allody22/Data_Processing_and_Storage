@@ -7,10 +7,12 @@ import ru.nsu.task4.model.TicketFlights;
 import ru.nsu.task4.model.dto.AvgPriceDto;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TicketsFlightsRepository extends JpaRepository<TicketFlights, String> {
 
+    Optional<TicketFlights> findByTicket_TicketNumber(String ticketNumber);
 
     List<TicketFlights> findByFlight_FlightId(Long flightId);
 

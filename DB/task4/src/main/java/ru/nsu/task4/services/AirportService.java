@@ -114,7 +114,7 @@ public class AirportService implements IAirportService {
     }
 
     @Transactional
-    public BookingResponse createBooking(BookingRaceRequest bookingRaceRequest) throws JsonProcessingException {
+    public BookingResponse createBooking(BookingRaceRequest bookingRaceRequest) {
         Long flightId = bookingRaceRequest.getFlightId();
         log.info("flight id = {}", flightId);
         Flights currentFlightFromDB = flightsRepository.findAllByFlightId(flightId)
@@ -139,16 +139,12 @@ public class AirportService implements IAirportService {
         }
 
         // Создание нового бронирования
-        log.info("trying to book");
         Bookings userBooking = new Bookings();
         userBooking.setBookDate(OffsetDateTime.now());
         userBooking.setBookRef(generateUniqueBookingRef());
         userBooking.setTotalAmount(bookingRaceRequest.getPrice());
         bookingsRepository.save(userBooking);
         // Создание и сохранение нового билета
-
-        log.info("trying to create ticket");
-
 
         var passengerContact = serializeToJson(bookingRaceRequest.getPassengerContact());
         Tickets newTicket = new Tickets();
@@ -159,16 +155,12 @@ public class AirportService implements IAirportService {
         newTicket.setBooking(userBooking);
 
 
-        log.info("jsonContact {}", passengerContact);
-
         ticketsRepository.insertTicket(newTicket.getTicketNumber(), newTicket.getPassengerId(), newTicket.getPassengerName(), passengerContact, userBooking.getBookRef());
 
 
-        log.info("trying save full race info");
         flightInfo.setSoldSeatsNumber(flightInfo.getSoldSeatsNumber() + 1);
         priceForFullRaceRepository.save(flightInfo);
 
-        log.info("trying save all");
         // Создание и сохранение записи о полете
         TicketFlightId ticketFlightId = new TicketFlightId(newTicket.getTicketNumber(), currentFlightFromDB.getFlightId());
         TicketFlights newTicketFlight = new TicketFlights();
@@ -179,18 +171,7 @@ public class AirportService implements IAirportService {
         newTicketFlight.setAmount(bookingRaceRequest.getPrice());
         ticketsFlightsRepository.save(newTicketFlight);
 
-
-        log.info("time to response with ticket = {}, and book ref = {}", newTicket.getTicketNumber(), userBooking.getBookRef());
         return new BookingResponse(newTicket.getTicketNumber(), userBooking.getBookRef());
-    }
-
-    public JsonNode createJsonNode(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.readTree(json);
-        } catch (IOException e) {
-            throw new RuntimeException("Error while parsing JSON", e);
-        }
     }
 
     public String serializeToJson(JsonNode jsonNode) {
@@ -204,14 +185,46 @@ public class AirportService implements IAirportService {
 
 
     public boolean isSeatOccupied(Long flightId, String seatNo) {
-        // Проверяем, есть ли посадочные талоны на данное место для данного рейса
         List<BoardingPass> boardingPasses = boardingPassRepository.findByFlightIdAndSeatNo(flightId, seatNo);
         return !boardingPasses.isEmpty(); // Место занято, если найдены записи
     }
 
     @Override
     public BoardingPassResponse checkInOnlineForAFlight(CheckInRequest checkInRequest) {
-        return new BoardingPassResponse();
+        BoardingPassResponse boardingPassResponse = new BoardingPassResponse();
+        String userSeatNo = checkInRequest.getSeatNumber();
+        Tickets userTicket = ticketsRepository.findByBooking_BookRef(checkInRequest.getBookRef())
+                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        TicketFlights bookedUserTicket = ticketsFlightsRepository.findByTicket_TicketNumber(userTicket.getTicketNumber())
+                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+
+        if (!bookedUserTicket.getFareCondition().equals(checkInRequest.getFareCondition())) {
+            throw new RuntimeException("Fare condition mismatch");
+        }
+
+        Flights userFlight = flightsRepository.findByFlightId(bookedUserTicket.getFlight().getFlightId())
+                .orElseThrow(() -> new RuntimeException("Flight is not found"));
+        Seats seat = seatsRepository.findBySeatNoAndAircraft_AircraftCodeAndFareCondition(
+                        userSeatNo, userFlight.getAircraftCode(), checkInRequest.getFareCondition())
+                .orElseThrow(() -> new RuntimeException("Seat does not exist or fare condition mismatch"));
+
+        if (isSeatOccupied(userFlight.getFlightId(), seat.getSeatNo())) {
+            throw new RuntimeException("Seat is occupied");
+        }
+        int maxBoardingNo = boardingPassRepository.findMaxBoardingNoByFlightId(userFlight.getFlightId());
+        int newBoardingNo = maxBoardingNo + 1;
+        BoardingPass newBoardingPass = new BoardingPass();
+        newBoardingPass.setTicketNo(userTicket.getTicketNumber());
+        newBoardingPass.setFlightId(userFlight.getFlightId());
+        newBoardingPass.setBoardingNo(newBoardingNo);
+        newBoardingPass.setSeatNo(userSeatNo);
+        boardingPassRepository.save(newBoardingPass);
+
+        boardingPassResponse.setBoardingPassNumber(String.valueOf(newBoardingNo));
+
+        boardingPassResponse.setFareCondition(checkInRequest.getFareCondition());
+        boardingPassResponse.setSeatNumber(userSeatNo);
+        return boardingPassResponse;
     }
 
     private AirportsNamesResponse getTwoAirportNames(String airport) throws JsonProcessingException {
