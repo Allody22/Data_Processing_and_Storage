@@ -14,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.nsu.task4.payloads.requests.RouteSearchRequest;
-import ru.nsu.task4.payloads.response.AirportsNamesResponse;
-import ru.nsu.task4.payloads.response.ArrivalFlights;
-import ru.nsu.task4.payloads.response.CitiesNamesResponse;
-import ru.nsu.task4.payloads.response.DepartureFlights;
+import ru.nsu.task4.payloads.response.*;
 import ru.nsu.task4.services.intertaces.IAirportService;
 
 import javax.validation.Valid;
@@ -105,7 +102,6 @@ public class AirportController {
     }
 
 
-    //TODO доделать
     @Operation(summary = "Получение списка маршрутов между двумя точками с опциональными фильтрами",
             description = "Возвращает список маршрутов с учетом начальной и конечной точки, даты отправления, класса бронирования и максимального количества пересадок.",
             tags = {"races"})
@@ -117,7 +113,11 @@ public class AirportController {
     })
     @PostMapping("/search")
     public ResponseEntity<?> listRoutes(@RequestBody RouteSearchRequest request) {
-        airportService.getRaces(request.getFrom(), request.getTo(), request.getDepartureDate(), request.getBookingClass(), request.getMaxConnections());
-        return ResponseEntity.ok().body("Здесь будет возвращен список маршрутов согласно запросу");
+        String ticketClass = request.getBookingClass();
+        if (!ticketClass.equals("Economy") && !ticketClass.equals("Business") && !ticketClass.equals("Comfort")) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Категория билетов '" + ticketClass + "' не существует."));
+        }
+        var ans = airportService.getRaces(request.getFrom(), request.getTo(), request.getDepartureDate(), ticketClass, request.getMaxConnections());
+        return ResponseEntity.ok().body(ans);
     }
 }

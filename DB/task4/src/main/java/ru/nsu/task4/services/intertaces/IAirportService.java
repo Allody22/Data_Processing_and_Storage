@@ -61,8 +61,9 @@ public interface IAirportService {
      * @param departureDate  дата отправления.
      * @param bookingClass   класс билета (Economy, Comfort, Business).
      * @param maxConnections максимальное количество пересадок (0 для прямых рейсов).
+     * @return список связей между аэропортами, необходимых для совершения перелёта.
      */
-    void getRaces(String from, String to, Date departureDate, String bookingClass, Integer maxConnections);
+    List<RouteResponse> getRaces(String from, String to, Date departureDate, String bookingClass, Integer maxConnections);
 
     /**
      * Создание бронирования для выбранного маршрута для одного пассажира.

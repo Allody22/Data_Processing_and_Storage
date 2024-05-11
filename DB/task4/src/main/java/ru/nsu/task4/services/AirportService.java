@@ -17,7 +17,9 @@ import ru.nsu.task4.repository.*;
 import ru.nsu.task4.services.intertaces.IAirportService;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
@@ -36,9 +38,13 @@ public class AirportService implements IAirportService {
     private final PriceForFullRaceRepository priceForFullRaceRepository;
 
     private final TicketsFlightsRepository ticketsFlightsRepository;
+
     private final SeatsRepository seatsRepository;
+
     private final BoardingPassRepository boardingPassRepository;
+
     private final TicketsRepository ticketsRepository;
+
     private final BookingsRepository bookingsRepository;
 
     @Override
@@ -109,9 +115,104 @@ public class AirportService implements IAirportService {
     }
 
     @Override
-    public void getRaces(String from, String to, Date departureDate, String bookingClass, Integer maxConnections) {
+    @Transactional
+    public List<RouteResponse> getRaces(String from, String to, Date departureDate, String bookingClass, Integer maxConnections) {
+        OffsetDateTime startOfTheDay = departureDate.toInstant().atOffset(ZoneOffset.UTC);
+        OffsetDateTime endOfTheDay = startOfTheDay.plusDays(1);
 
+        List<PriceFullOneRaceAnalysis> potentialFlights = priceForFullRaceRepository.findFlightsByAirportNamesAndDepartureTime(from, to, startOfTheDay, endOfTheDay);
+        List<RouteResponse> routes = new ArrayList<>();
+
+        // Добавляем прямые рейсы, соответствующие классу бронирования
+        for (PriceFullOneRaceAnalysis flight : potentialFlights) {
+            if (checkBookingClassAvailability(flight, bookingClass)) {
+                List<FlightSegment> segments = new ArrayList<>();
+                segments.add(createFlightSegment(flight, bookingClass));
+                routes.add(new RouteResponse(segments, calculateTotalTravelTime(segments), 0));
+            }
+        }
+
+        // Рекурсивный поиск рейсов с пересадками, если maxConnections > 0
+        if (maxConnections > 0) {
+            for (PriceFullOneRaceAnalysis flight : potentialFlights) {
+                findConnectingFlights(flight, to, endOfTheDay, bookingClass, maxConnections, 0, new ArrayList<>(List.of(flight)), routes);
+            }
+        }
+
+        return routes;
     }
+
+    private boolean checkBookingClassAvailability(PriceFullOneRaceAnalysis flight, String bookingClass) {
+        return ticketsFlightsRepository.existsByFlight_FlightIdAndFareCondition(flight.getFlightUid(), bookingClass);
+    }
+
+    private FlightSegment createFlightSegment(PriceFullOneRaceAnalysis flight, String bookingClass) {
+        return new FlightSegment(
+                flight.getFlightNumber(),
+                flight.getDepartureAirportName(),
+                flight.getArrivalAirportName(),
+                flight.getDepartureTime().toString(),
+                flight.getArrivalTime().toString(),
+                calculateDuration(flight.getDepartureTime(), flight.getArrivalTime()),
+                bookingClass
+        );
+    }
+
+    private void findConnectingFlights(PriceFullOneRaceAnalysis lastFlight, String finalDestination, OffsetDateTime endDate,
+                                       String bookingClass, int maxConnections, int currentConnections,
+                                       List<PriceFullOneRaceAnalysis> currentRoute, List<RouteResponse> allRoutes) {
+        if (currentConnections >= maxConnections) return;
+
+        List<PriceFullOneRaceAnalysis> possibleNextFlights = priceForFullRaceRepository.findFlightsByAirportNamesAndDepartureTime(
+                lastFlight.getArrivalAirportName(), finalDestination, lastFlight.getArrivalTime().plusHours(3), endDate);
+
+        for (PriceFullOneRaceAnalysis nextFlight : possibleNextFlights) {
+            if (!checkBookingClassAvailability(nextFlight, bookingClass)) continue;
+
+            List<PriceFullOneRaceAnalysis> newRoute = new ArrayList<>(currentRoute);
+            newRoute.add(nextFlight);
+            allRoutes.add(buildRouteResponse(newRoute, bookingClass));
+
+            // Рекурсивный поиск дальнейших пересадок
+            findConnectingFlights(nextFlight, finalDestination, endDate, bookingClass, maxConnections,
+                    currentConnections + 1, newRoute, allRoutes);
+        }
+    }
+
+
+    private RouteResponse buildRouteResponse(List<PriceFullOneRaceAnalysis> routeFlights, String bookingClass) {
+        List<FlightSegment> segments = new ArrayList<>();
+        for (PriceFullOneRaceAnalysis flight : routeFlights) {
+            segments.add(new FlightSegment(
+                    flight.getFlightNumber(),
+                    flight.getDepartureAirportName(),
+                    flight.getArrivalAirportName(),
+                    flight.getDepartureTime().toString(),
+                    flight.getArrivalTime().toString(),
+                    calculateDuration(flight.getDepartureTime(), flight.getArrivalTime()),
+                    bookingClass
+            ));
+        }
+        String totalTravelTime = calculateTotalTravelTime(segments);
+        return new RouteResponse(segments, totalTravelTime, segments.size() - 1);
+    }
+
+
+    private String calculateDuration(OffsetDateTime departureTime, OffsetDateTime arrivalTime) {
+        Duration duration = Duration.between(departureTime, arrivalTime);
+        return String.format("%d hours, %d min", duration.toHours(), duration.toMinutesPart());
+    }
+
+
+    private String calculateTotalTravelTime(List<FlightSegment> segments) {
+        if (segments.isEmpty()) return "0 hours, 0 min";
+        OffsetDateTime start = OffsetDateTime.parse(segments.get(0).getDepartureTime());
+        OffsetDateTime end = OffsetDateTime.parse(segments.get(segments.size() - 1).getArrivalTime());
+        Duration totalDuration = Duration.between(start, end);
+        return String.format("%d hours, %d min", totalDuration.toHours(), totalDuration.toMinutesPart());
+    }
+
+
 
     @Transactional
     public BookingResponse createBooking(BookingRaceRequest bookingRaceRequest) {

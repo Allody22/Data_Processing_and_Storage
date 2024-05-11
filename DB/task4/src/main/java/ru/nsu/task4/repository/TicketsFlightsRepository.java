@@ -12,6 +12,8 @@ import java.util.Optional;
 @Repository
 public interface TicketsFlightsRepository extends JpaRepository<TicketFlights, String> {
 
+    boolean existsByFlight_FlightIdAndFareCondition(Long flightId, String fareCondition);
+
     Optional<TicketFlights> findByTicket_TicketNumber(String ticketNumber);
 
     List<TicketFlights> findByFlight_FlightId(Long flightId);
