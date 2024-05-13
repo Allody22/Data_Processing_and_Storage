@@ -27,7 +27,6 @@ public class BookingRaceRequest {
     @Schema(description = "ФИО пассажира.", example = "TAMARA ZAYCEVA", required = true)
     private String passengerName;
 
-
     @Schema(description = "Контакты пассажира.", example = "{\"email\": \"t_petrova1970@postgrespro.ru\", \"phone\": \"+70886117503\"}")
     private JsonNode passengerContact;
 }

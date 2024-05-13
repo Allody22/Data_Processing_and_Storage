@@ -17,6 +17,7 @@ import ru.nsu.task4.repository.*;
 import ru.nsu.task4.services.intertaces.IAirportService;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -142,6 +143,7 @@ public class AirportService implements IAirportService {
         return routes;
     }
 
+
     private boolean checkBookingClassAvailability(PriceFullOneRaceAnalysis flight, String bookingClass) {
         return ticketsFlightsRepository.existsByFlight_FlightIdAndFareCondition(flight.getFlightUid(), bookingClass);
     }
@@ -161,7 +163,9 @@ public class AirportService implements IAirportService {
     private void findConnectingFlights(PriceFullOneRaceAnalysis lastFlight, String finalDestination, OffsetDateTime endDate,
                                        String bookingClass, int maxConnections, int currentConnections,
                                        List<PriceFullOneRaceAnalysis> currentRoute, List<RouteResponse> allRoutes) {
-        if (currentConnections >= maxConnections) return;
+        if (currentConnections >= maxConnections) {
+            return;
+        }
 
         List<PriceFullOneRaceAnalysis> possibleNextFlights = priceForFullRaceRepository.findFlightsByAirportNamesAndDepartureTime(
                 lastFlight.getArrivalAirportName(), finalDestination, lastFlight.getArrivalTime().plusHours(3), endDate);
@@ -213,11 +217,10 @@ public class AirportService implements IAirportService {
     }
 
 
-
     @Transactional
     public BookingResponse createBooking(BookingRaceRequest bookingRaceRequest) {
         Long flightId = bookingRaceRequest.getFlightId();
-        log.info("flight id = {}", flightId);
+
         Flights currentFlightFromDB = flightsRepository.findAllByFlightId(flightId)
                 .orElseThrow(() -> new RuntimeException("Flight not found in actual db"));
 
@@ -229,14 +232,45 @@ public class AirportService implements IAirportService {
                 .orElseThrow(() -> new RuntimeException("Flight not found in my db"));
 
         String aircraftCode = currentFlightFromDB.getAircraftCode();
+        BigDecimal userMoney = bookingRaceRequest.getPrice();
+        if (seatsRepository.existsBySeatNoAndAircraft_AircraftCodeAndFareCondition(
+                bookingRaceRequest.getSeatNumber(), aircraftCode, bookingRaceRequest.getFareCondition())) {
+            throw new RuntimeException("Seat does not exist or fare condition mismatch");
+        }
 
-        // Проверка существования места с соответствующим классом обслуживания
-        Seats seat = seatsRepository.findBySeatNoAndAircraft_AircraftCodeAndFareCondition(
-                        bookingRaceRequest.getSeatNumber(), aircraftCode, bookingRaceRequest.getFareCondition())
-                .orElseThrow(() -> new RuntimeException("Seat does not exist or fare condition mismatch"));
-
-        if (isSeatOccupied(flightId, bookingRaceRequest.getSeatNumber())) {
-            throw new RuntimeException("Seat is occupied");
+        String fareCondition = bookingRaceRequest.getFareCondition();
+        switch (fareCondition) {
+            case "Business" -> {
+                if (flightInfo.getSoldSeatsBusiness() >= flightInfo.getTotalSeatsBusiness()) {
+                    throw new RuntimeException("No business seats available");
+                } else {
+                    if (userMoney.compareTo(flightInfo.getAveragePriceForOneBusinessSeat()) < 0) {
+                        throw new RuntimeException("Not enough money for business seats");
+                    }
+                    flightInfo.setSoldSeatsBusiness(flightInfo.getSoldSeatsBusiness() + 1);
+                }
+            }
+            case "Comfort" -> {
+                if (flightInfo.getSoldSeatsComfort() >= flightInfo.getTotalSeatsComfort()) {
+                    throw new RuntimeException("No comfort seats available");
+                } else {
+                    if (userMoney.compareTo(flightInfo.getAveragePriceForOneComfortSeat()) < 0) {
+                        throw new RuntimeException("Not enough money for comfort seats");
+                    }
+                    flightInfo.setSoldSeatsComfort(flightInfo.getSoldSeatsComfort() + 1);
+                }
+            }
+            case "Economy" -> {
+                if (flightInfo.getSoldSeatsEconomy() >= flightInfo.getTotalSeatsEconomy()) {
+                    throw new RuntimeException("No economy seats available");
+                } else {
+                    if (userMoney.compareTo(flightInfo.getAveragePriceForOneEconomySeat()) < 0) {
+                        throw new RuntimeException("Not enough money for economy seats");
+                    }
+                    flightInfo.setSoldSeatsEconomy(flightInfo.getSoldSeatsEconomy() + 1);
+                }
+            }
+            default -> throw new RuntimeException("Invalid fare condition with name " + fareCondition);
         }
 
         // Создание нового бронирования

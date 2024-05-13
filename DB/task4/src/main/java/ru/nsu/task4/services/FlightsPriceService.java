@@ -6,8 +6,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.nsu.task4.model.Flights;
 import ru.nsu.task4.model.PriceFullOneRaceAnalysis;
-import ru.nsu.task4.model.Seats;
-import ru.nsu.task4.model.TicketFlights;
+import ru.nsu.task4.model.dto.AircraftTotalCodeSeatsCountDTO;
+import ru.nsu.task4.model.dto.AvgPriceDto;
+import ru.nsu.task4.model.dto.FlightSoldCodeSeatsCountDTO;
 import ru.nsu.task4.repository.FlightsRepository;
 import ru.nsu.task4.repository.PriceForFullRaceRepository;
 import ru.nsu.task4.repository.SeatsRepository;
@@ -19,13 +20,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class FlightsPriceService {
-
 
     private final FlightsRepository flightsRepository;
 
@@ -45,33 +46,26 @@ public class FlightsPriceService {
     @Transactional
     public void getFullPriceForOneRace() {
         List<Flights> allFlights = flightsRepository.findAll();
-        List<TicketFlights> allTicketFlights = ticketsFlightsRepository.findAll();
+        List<AircraftTotalCodeSeatsCountDTO> seatsByAircraftCode = seatsRepository.countSeatsByAircraftCode();
+        List<FlightSoldCodeSeatsCountDTO> soldSeatsData = ticketsFlightsRepository.getAllSoldSeatsCount();
 
-        List<Seats> allSeats = seatsRepository.getAll();
-
-
-        Map<String, Long> totalSeatsByAircraft = allSeats.stream()
-                .collect(Collectors.groupingBy(seat -> seat.getAircraft().getAircraftCode().trim(), Collectors.counting()));
-        totalSeatsByAircraft.put("CN1", 12L);
-        totalSeatsByAircraft.put("CR2", 50L);
-        totalSeatsByAircraft.put("SU9", 97L);
-
-        Map<Long, List<TicketFlights>> ticketsByFlightId = allTicketFlights.stream()
-                .collect(Collectors.groupingBy(tf -> tf.getFlight().getFlightId()));
+        Map<Long, FlightSoldCodeSeatsCountDTO> soldSeatsMap = soldSeatsData.stream()
+                .collect(Collectors.toMap(FlightSoldCodeSeatsCountDTO::getFlightId, Function.identity()));
 
         List<PriceFullOneRaceAnalysis> analyses = new ArrayList<>();
 
         allFlights.forEach(flight -> {
-            Long totalSeats = totalSeatsByAircraft.getOrDefault(flight.getAircraftCode(), 0L);
-            if (totalSeats == 0L) {
-                log.info("flights = " + flight.getAircraftCode());
+            String aircraftCode = flight.getAircraftCode();
+            var flightId = flight.getFlightId();
+
+            FlightSoldCodeSeatsCountDTO currentSoldSeats = soldSeatsMap.get(flightId);
+            if (currentSoldSeats == null) {
+                currentSoldSeats = new FlightSoldCodeSeatsCountDTO(flightId, aircraftCode, 0L, BigDecimal.ZERO, 0L, BigDecimal.ZERO, 0L, BigDecimal.ZERO);
             }
-            List<TicketFlights> tickets = ticketsByFlightId.getOrDefault(flight.getFlightId(), Collections.emptyList());
-            BigDecimal totalPrice = tickets.stream()
-                    .map(TicketFlights::getAmount)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);
-            int seatsSold = tickets.size();
-            BigDecimal averagePriceForOneSeat = seatsSold > 0 ? totalPrice.divide(BigDecimal.valueOf(seatsSold), 2, RoundingMode.HALF_UP) : BigDecimal.ZERO;
+            AircraftTotalCodeSeatsCountDTO currentSeatsByAircraftCode = seatsByAircraftCode.stream()
+                    .filter(seats -> seats.getAircraftCode().equals(aircraftCode))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("Aircraft with code " + aircraftCode + " doesn't found"));
 
             PriceFullOneRaceAnalysis analysis = new PriceFullOneRaceAnalysis();
             analysis.setFlightUid(flight.getFlightId());
@@ -80,31 +74,84 @@ public class FlightsPriceService {
             analysis.setArrivalTime(flight.getScheduledArrival());
             analysis.setDepartureCity(flight.getDepartureAirport().getCity());
             analysis.setArrivalCity(flight.getArrivalAirport().getCity());
-            analysis.setTotalPrice(totalPrice);
+            analysis.setTotalPrice(BigDecimal.ZERO);
             analysis.setDepartureAirportName(flight.getDepartureAirport().getAirportName());
             analysis.setArrivalAirportName(flight.getArrivalAirport().getAirportName());
-            analysis.setTotalSeatsNumber(totalSeats.intValue());
-            analysis.setSoldSeatsNumber(seatsSold);
-            analysis.setAveragePriceForOneSeat(averagePriceForOneSeat);
+            analysis.setTotalSeatsNumber(Math.toIntExact(currentSeatsByAircraftCode.getTotalSeatsCount()));
+
+            var soldBusinessSeats = currentSoldSeats.getBusinessSoldSeatsCount();
+            var soldComfortSeats = currentSoldSeats.getComfortSoldSeatsCount();
+            var soldEconomySeats = currentSoldSeats.getEconomySoldSeatsCount();
+
+            var allBusinessSeats = currentSeatsByAircraftCode.getBusinessSeatsCount();
+            var allComfortSeats = currentSeatsByAircraftCode.getComfortSeatsCount();
+            var allEconomySeats = currentSeatsByAircraftCode.getEconomySeatsCount();
+
+            var totalSoldSeats = soldBusinessSeats + soldEconomySeats + soldComfortSeats;
+            var totalSeats = allBusinessSeats + allEconomySeats + allComfortSeats;
+
+            analysis.setSoldSeatsNumber((int) (totalSoldSeats));
+            analysis.setTotalSeatsNumber((int) (totalSeats));
             analysis.setAircraftCode(flight.getAircraftCode());
 
+            analysis.setTotalSeatsBusiness(Math.toIntExact(allBusinessSeats));
+            analysis.setTotalSeatsEconomy(Math.toIntExact(allEconomySeats));
+            analysis.setTotalSeatsComfort(Math.toIntExact(allComfortSeats));
+            analysis.setSoldSeatsBusiness(Math.toIntExact(soldBusinessSeats));
+            analysis.setSoldSeatsEconomy(Math.toIntExact(soldEconomySeats));
+            analysis.setSoldSeatsComfort(Math.toIntExact(soldComfortSeats));
+            BigDecimal totalPrice = BigDecimal.ZERO;
+
+
+            BigDecimal allBusinessSeatsPrice = currentSoldSeats.getFullPriceBusiness() != null ? currentSoldSeats.getFullPriceBusiness() : BigDecimal.ZERO;
+            BigDecimal allComfortSeatsPrice = currentSoldSeats.getFullPriceComfort() != null ? currentSoldSeats.getFullPriceComfort() : BigDecimal.ZERO;
+            BigDecimal allEconomySeatsPrice = currentSoldSeats.getFullPriceEconomy() != null ? currentSoldSeats.getFullPriceEconomy() : BigDecimal.ZERO;
+
+            totalPrice = totalPrice.add(allBusinessSeatsPrice);
+            if (soldBusinessSeats != null && soldBusinessSeats != 0) {
+                analysis.setAveragePriceForOneBusinessSeat(allBusinessSeatsPrice.divide(BigDecimal.valueOf(soldBusinessSeats), RoundingMode.HALF_UP));
+            } else {
+                analysis.setAveragePriceForOneBusinessSeat(BigDecimal.ZERO);
+            }
+
+            totalPrice = totalPrice.add(allComfortSeatsPrice);
+            if (soldComfortSeats != null && soldComfortSeats != 0) {
+                analysis.setAveragePriceForOneComfortSeat(allComfortSeatsPrice.divide(BigDecimal.valueOf(soldComfortSeats), RoundingMode.HALF_UP));
+            } else {
+                analysis.setAveragePriceForOneComfortSeat(BigDecimal.ZERO);
+            }
+
+            totalPrice = totalPrice.add(allEconomySeatsPrice);
+            if (soldEconomySeats != null && soldEconomySeats != 0) {
+                analysis.setAveragePriceForOneEconomySeat(allEconomySeatsPrice.divide(BigDecimal.valueOf(soldEconomySeats), RoundingMode.HALF_UP));
+            } else {
+                analysis.setAveragePriceForOneEconomySeat(BigDecimal.ZERO);
+            }
+
+            analysis.setTotalPrice(totalPrice);
+            if (totalSoldSeats > 0) {
+                analysis.setAveragePriceForOneSeat(totalPrice.divide(BigDecimal.valueOf(totalSoldSeats), RoundingMode.HALF_UP));
+            } else {
+                analysis.setAveragePriceForOneSeat(BigDecimal.ZERO);
+            }
             analyses.add(analysis);
         });
 
         priceForFullRaceRepository.saveAll(analyses);
     }
 
+
     @Transactional
     public List<PriceFullOneRaceAnalysis> findAllRacesWithoutTotalPrice() {
         var races = priceForFullRaceRepository.findAllByTotalPrice(BigDecimal.ZERO);
-        log.info("races without total price for one seat size = " + races.size());
+        log.info("races without total price for one seat size = {}", races.size());
         return races;
     }
 
     @Transactional
     public List<PriceFullOneRaceAnalysis> findAllRacesWithoutAveragePrice() {
         var races = priceForFullRaceRepository.findAllByAveragePriceForOneSeat(BigDecimal.ZERO);
-        log.info("races without average price for one seat size = " + races.size());
+        log.info("races without average price for one seat size = {}", races.size());
         return races;
     }
 
@@ -117,140 +164,123 @@ public class FlightsPriceService {
     @Transactional
     public void calculateMissingPrices() {
         List<PriceFullOneRaceAnalysis> flightsWithoutPrice = findAllRacesWithoutAveragePrice();
+        List<PriceFullOneRaceAnalysis> allFlights = priceForFullRaceRepository.findAll();
+
+        Map<String, List<PriceFullOneRaceAnalysis>> flightsByDepartureCityAndArrivalCityAndAircraftCode = allFlights.stream()
+                .collect(Collectors.groupingBy(flight -> flight.getDepartureCity() + "_" + flight.getArrivalCity() + "_" + flight.getAircraftCode()));
+
+        Map<String, List<PriceFullOneRaceAnalysis>> flightsByDepartureCityAndArrivalCity = allFlights.stream()
+                .collect(Collectors.groupingBy(flight -> flight.getDepartureCity() + "_" + flight.getArrivalCity()));
+
+        Map<String, List<PriceFullOneRaceAnalysis>> flightsByDepartureCityAndAircraftCode = allFlights.stream()
+                .collect(Collectors.groupingBy(flight -> flight.getDepartureCity() + "_" + flight.getAircraftCode()));
+
+        Map<String, List<PriceFullOneRaceAnalysis>> flightsByArrivalCityAndAircraftCode = allFlights.stream()
+                .collect(Collectors.groupingBy(flight -> flight.getArrivalCity() + "_" + flight.getAircraftCode()));
+
+        Map<String, List<PriceFullOneRaceAnalysis>> flightsByDepartureCity = allFlights.stream()
+                .collect(Collectors.groupingBy(PriceFullOneRaceAnalysis::getDepartureCity));
+
+        Map<String, List<PriceFullOneRaceAnalysis>> flightsByArrivalCity = allFlights.stream()
+                .collect(Collectors.groupingBy(PriceFullOneRaceAnalysis::getArrivalCity));
+
+        Map<String, List<PriceFullOneRaceAnalysis>> flightsByAircraftCode = allFlights.stream()
+                .collect(Collectors.groupingBy(PriceFullOneRaceAnalysis::getAircraftCode));
 
         flightsWithoutPrice.forEach(currentFlight -> {
-            BigDecimal totalPrice = currentFlight.getTotalPrice();
-            int totalSeatsSold = currentFlight.getTotalSeatsNumber();
-            int totalSeats = currentFlight.getTotalSeatsNumber();
-            BigDecimal averagePriceForOneSeat = BigDecimal.ZERO;
+            BigDecimal averagePrice = currentFlight.getAveragePriceForOneSeat();
 
-            if (totalPrice != null && !totalPrice.equals(BigDecimal.ZERO)) {
-                if (totalSeatsSold > 0) {
-                    averagePriceForOneSeat = totalPrice.divide(BigDecimal.valueOf(totalSeatsSold), 2, RoundingMode.HALF_UP);
-                } else if (totalSeats > 0) {
-                    averagePriceForOneSeat = totalPrice.divide(BigDecimal.valueOf(totalSeats), 2, RoundingMode.HALF_UP);
-                } else {
-                    throw new RuntimeException("No seats  found");
-                }
+            if (averagePrice != null && !averagePrice.equals(BigDecimal.ZERO)) {
+                return;
             }
 
-            if (totalPrice.equals(BigDecimal.ZERO) || averagePriceForOneSeat.equals(BigDecimal.ZERO)) {
-                List<PriceFullOneRaceAnalysis> similarFlights = new ArrayList<>();
-                similarFlights = priceForFullRaceRepository.findAllByDepartureCityAndArrivalCityAndAircraftCodeAndTotalPriceGreaterThan(
-                        currentFlight.getDepartureCity(),
-                        currentFlight.getArrivalCity(),
-                        currentFlight.getAircraftCode(),
-                        BigDecimal.ZERO);
-
-                averagePriceForOneSeat = BigDecimal.ZERO;
-
-                if (!similarFlights.isEmpty()) {
-                    averagePriceForOneSeat = getAveragePrice(similarFlights, averagePriceForOneSeat);
-                }
-
-                if (similarFlights.isEmpty() || averagePriceForOneSeat.equals(BigDecimal.ZERO)) {
-                    similarFlights = priceForFullRaceRepository.findAllByDepartureCityAndArrivalCityAndTotalPriceGreaterThan(
-                            currentFlight.getDepartureCity(),
-                            currentFlight.getArrivalCity(),
-                            BigDecimal.ZERO);
-                    if (!similarFlights.isEmpty()) {
-                        averagePriceForOneSeat = getAveragePrice(similarFlights, averagePriceForOneSeat);
-                    }
-                }
-
-                if (similarFlights.isEmpty() || averagePriceForOneSeat.equals(BigDecimal.ZERO)) {
-                    similarFlights = priceForFullRaceRepository.findAllByDepartureCityAndAircraftCodeAndTotalPriceGreaterThan(
-                            currentFlight.getDepartureCity(),
-                            currentFlight.getAircraftCode(),
-                            BigDecimal.ZERO);
-
-                    if (!similarFlights.isEmpty()) {
-                        averagePriceForOneSeat = getAveragePrice(similarFlights, averagePriceForOneSeat);
-                    }
-                }
-
-                if (similarFlights.isEmpty() || averagePriceForOneSeat.equals(BigDecimal.ZERO)) {
-                    similarFlights = priceForFullRaceRepository.findAllByArrivalCityAndAircraftCodeAndTotalPriceGreaterThan(
-                            currentFlight.getArrivalCity(),
-                            currentFlight.getAircraftCode(),
-                            BigDecimal.ZERO);
-                    if (!similarFlights.isEmpty()) {
-                        averagePriceForOneSeat = getAveragePrice(similarFlights, averagePriceForOneSeat);
-                    }
-                }
-
-                if (similarFlights.isEmpty() || averagePriceForOneSeat.equals(BigDecimal.ZERO)) {
-                    similarFlights = priceForFullRaceRepository.findAllByArrivalCityAndTotalPriceGreaterThan(
-                            currentFlight.getArrivalCity(),
-                            BigDecimal.ZERO);
-                    if (!similarFlights.isEmpty()) {
-                        averagePriceForOneSeat = getAveragePrice(similarFlights, averagePriceForOneSeat);
-                    }
-                }
-
-                if (similarFlights.isEmpty() || averagePriceForOneSeat.equals(BigDecimal.ZERO)) {
-                    similarFlights = priceForFullRaceRepository.findAllByDepartureCityAndTotalPriceGreaterThan(
-                            currentFlight.getDepartureCity(),
-                            BigDecimal.ZERO);
-                    if (!similarFlights.isEmpty()) {
-                        averagePriceForOneSeat = getAveragePrice(similarFlights, averagePriceForOneSeat);
-                    }
-                }
+            AvgPriceDto avgPriceDto = getFilteredFlights(
+                    currentFlight, flightsByDepartureCityAndArrivalCityAndAircraftCode, flightsByDepartureCityAndArrivalCity, flightsByDepartureCityAndAircraftCode,
+                    flightsByArrivalCityAndAircraftCode, flightsByDepartureCity, flightsByArrivalCity, flightsByAircraftCode);
 
 
-                if (similarFlights.isEmpty() || averagePriceForOneSeat.equals(BigDecimal.ZERO)) {
-                    similarFlights = priceForFullRaceRepository.findAllByAircraftCodeAndTotalPriceGreaterThan(
-                            currentFlight.getAircraftCode(),
-                            BigDecimal.ZERO);
-                    if (!similarFlights.isEmpty()) {
-                        averagePriceForOneSeat = getAveragePrice(similarFlights, averagePriceForOneSeat);
-                    }
-                }
-
-                if (similarFlights.isEmpty()) {
-                    throw new RuntimeException("No similar flights found");
-                }
-
-                BigDecimal averageTotalPrice = similarFlights.stream()
-                        .map(PriceFullOneRaceAnalysis::getTotalPrice)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add)
-                        .divide(new BigDecimal(similarFlights.size()), RoundingMode.HALF_UP);
-
-                currentFlight.setAveragePriceForOneSeat(averagePriceForOneSeat);
-                currentFlight.setTotalPrice(averageTotalPrice);
-                priceForFullRaceRepository.save(currentFlight);
-            }
-            currentFlight.setAveragePriceForOneSeat(averagePriceForOneSeat);
-            currentFlight.setTotalPrice(totalPrice);
+            currentFlight.setAveragePriceForOneSeat(avgPriceDto.getAvgPriceForAnySeat());
+            currentFlight.setAveragePriceForOneEconomySeat(avgPriceDto.getAvgPriceForEconomySeat());
+            currentFlight.setAveragePriceForOneBusinessSeat(avgPriceDto.getAvgPriceForBusinessSeat());
+            currentFlight.setAveragePriceForOneComfortSeat(avgPriceDto.getAvgPriceForComfortSeat());
             priceForFullRaceRepository.save(currentFlight);
         });
     }
 
-    private BigDecimal getAveragePrice(List<PriceFullOneRaceAnalysis> similarFlights, BigDecimal averagePriceForOneSeat) {
-        BigDecimal totalPricesSum;
-        int totalSeatsSold;
-        int totalSeats;
-        totalPricesSum = similarFlights.stream()
-                .filter(flight -> flight.getTotalPrice().compareTo(BigDecimal.ZERO) > 0) // Фильтруем рейсы с ненулевой ценой
-                .map(flight -> flight.getTotalPrice().multiply(BigDecimal.valueOf(flight.getSoldSeatsNumber())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    private AvgPriceDto getFilteredFlights(PriceFullOneRaceAnalysis currentFlight,
+                                           Map<String, List<PriceFullOneRaceAnalysis>> flightsByCityAndAircraft,
+                                           Map<String, List<PriceFullOneRaceAnalysis>> flightsByCity,
+                                           Map<String, List<PriceFullOneRaceAnalysis>> flightsByDepartureCityAndAircraft,
+                                           Map<String, List<PriceFullOneRaceAnalysis>> flightsByArrivalCityAndAircraft,
+                                           Map<String, List<PriceFullOneRaceAnalysis>> flightsByDepartureCity,
+                                           Map<String, List<PriceFullOneRaceAnalysis>> flightsByArrivalCity,
+                                           Map<String, List<PriceFullOneRaceAnalysis>> flightsByAircraftCode) {
+        String key = currentFlight.getDepartureCity() + "_" + currentFlight.getArrivalCity() + "_" + currentFlight.getAircraftCode();
+        String cityKey = currentFlight.getDepartureCity() + "_" + currentFlight.getArrivalCity();
+        String departureAircraftKey = currentFlight.getDepartureCity() + "_" + currentFlight.getAircraftCode();
+        String arrivalAircraftKey = currentFlight.getArrivalCity() + "_" + currentFlight.getAircraftCode();
 
-        totalSeatsSold = similarFlights.stream()
-                .filter(flight -> flight.getTotalPrice().compareTo(BigDecimal.ZERO) > 0) // Повторяем фильтрацию для согласованности
-                .mapToInt(PriceFullOneRaceAnalysis::getSoldSeatsNumber)
-                .sum();
+        List<PriceFullOneRaceAnalysis> similarFlights = flightsByCityAndAircraft.getOrDefault(key, Collections.emptyList());
+        AvgPriceDto avgPriceDto = getAveragePrice(similarFlights);
 
-        totalSeats = similarFlights.stream()
-                .mapToInt(PriceFullOneRaceAnalysis::getTotalSeatsNumber)
-                .sum();
-
-        if (totalSeatsSold > 0) {
-            averagePriceForOneSeat = totalPricesSum.divide(BigDecimal.valueOf(totalSeatsSold), 2, RoundingMode.HALF_UP);
-        } else if (totalSeats > 0) {
-            averagePriceForOneSeat = totalPricesSum.divide(BigDecimal.valueOf(totalSeats), 2, RoundingMode.HALF_UP);
-        } else {
-            throw new RuntimeException("No seats at all");
+        if (similarFlights.isEmpty() || avgPriceDto.getAvgPriceForAnySeat() == null || avgPriceDto.getAvgPriceForAnySeat().equals(BigDecimal.ZERO)) {
+            similarFlights = flightsByCity.getOrDefault(cityKey, Collections.emptyList());
+            avgPriceDto = getAveragePrice(similarFlights);
         }
-        return averagePriceForOneSeat;
+        if (similarFlights.isEmpty() || avgPriceDto.getAvgPriceForAnySeat() == null || avgPriceDto.getAvgPriceForAnySeat().equals(BigDecimal.ZERO)) {
+            similarFlights = flightsByDepartureCityAndAircraft.getOrDefault(departureAircraftKey, Collections.emptyList());
+            avgPriceDto = getAveragePrice(similarFlights);
+        }
+        if (similarFlights.isEmpty() || avgPriceDto.getAvgPriceForAnySeat() == null || avgPriceDto.getAvgPriceForAnySeat().equals(BigDecimal.ZERO)) {
+            similarFlights = flightsByArrivalCityAndAircraft.getOrDefault(arrivalAircraftKey, Collections.emptyList());
+            avgPriceDto = getAveragePrice(similarFlights);
+        }
+        if (similarFlights.isEmpty() || avgPriceDto.getAvgPriceForAnySeat() == null || avgPriceDto.getAvgPriceForAnySeat().equals(BigDecimal.ZERO)) {
+            similarFlights = flightsByDepartureCity.getOrDefault(currentFlight.getDepartureCity(), Collections.emptyList());
+            avgPriceDto = getAveragePrice(similarFlights);
+        }
+        if (similarFlights.isEmpty() || avgPriceDto.getAvgPriceForAnySeat() == null || avgPriceDto.getAvgPriceForAnySeat().equals(BigDecimal.ZERO)) {
+            similarFlights = flightsByArrivalCity.getOrDefault(currentFlight.getArrivalCity(), Collections.emptyList());
+            avgPriceDto = getAveragePrice(similarFlights);
+        }
+        if (similarFlights.isEmpty() || avgPriceDto.getAvgPriceForAnySeat() == null || avgPriceDto.getAvgPriceForAnySeat().equals(BigDecimal.ZERO)) {
+            similarFlights = flightsByAircraftCode.getOrDefault(currentFlight.getAircraftCode(), Collections.emptyList());
+            avgPriceDto = getAveragePrice(similarFlights);
+        }
+        if (similarFlights.isEmpty()) {
+            throw new RuntimeException("No similar flights found for " + currentFlight.getFlightNumber());
+        }
+        return avgPriceDto;
+    }
+
+
+    private AvgPriceDto getAveragePrice(List<PriceFullOneRaceAnalysis> similarFlights) {
+        if (similarFlights.isEmpty()) {
+            return new AvgPriceDto(BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO);
+        }
+        BigDecimal averagePriceForOneSeatFlight = BigDecimal.ZERO;
+        BigDecimal averagePriceForOneSeatFlightEconomy = BigDecimal.ZERO;
+        BigDecimal averagePriceForOneSeatFlightComfort = BigDecimal.ZERO;
+        BigDecimal averagePriceForOneSeatFlightBusiness = BigDecimal.ZERO;
+
+        int flightsNumber = similarFlights.size();
+        for (var flight : similarFlights) {
+            var currentFlightPrice = flight.getTotalPrice();
+            if (currentFlightPrice.compareTo(BigDecimal.ZERO) == 0) {
+                continue;
+            }
+
+            averagePriceForOneSeatFlightBusiness = flight.getAveragePriceForOneBusinessSeat();
+            averagePriceForOneSeatFlightEconomy = flight.getAveragePriceForOneEconomySeat();
+            averagePriceForOneSeatFlightComfort = flight.getAveragePriceForOneComfortSeat();
+            averagePriceForOneSeatFlight = flight.getAveragePriceForOneSeat();
+        }
+        var averagePriceForOneEconomySeatFinal = averagePriceForOneSeatFlightEconomy.divide(BigDecimal.valueOf(flightsNumber), RoundingMode.HALF_UP);
+        var averagePriceForOneBusinessSeatFinal = averagePriceForOneSeatFlightBusiness.divide(BigDecimal.valueOf(flightsNumber), RoundingMode.HALF_UP);
+        var averagePriceForOneComfortSeatFinal = averagePriceForOneSeatFlightComfort.divide(BigDecimal.valueOf(flightsNumber), RoundingMode.HALF_UP);
+        var averagePriceForOneAnySeatFinal = averagePriceForOneSeatFlight.divide(BigDecimal.valueOf(flightsNumber), RoundingMode.HALF_UP);
+
+        return new AvgPriceDto(averagePriceForOneEconomySeatFinal, averagePriceForOneBusinessSeatFinal,
+                averagePriceForOneComfortSeatFinal, averagePriceForOneAnySeatFinal);
     }
 }

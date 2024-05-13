@@ -101,7 +101,6 @@ public class AirportController {
         return ResponseEntity.ok(airportService.getDepartureTimetableOfTheAirport(airport));
     }
 
-
     @Operation(summary = "Получение списка маршрутов между двумя точками с опциональными фильтрами",
             description = "Возвращает список маршрутов с учетом начальной и конечной точки, даты отправления, класса бронирования и максимального количества пересадок.",
             tags = {"races"})

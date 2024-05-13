@@ -8,10 +8,10 @@ servers:
 tags:
   - name: 0. Structure Controller
     description: Контроллер для первого задания для составления цены о неизвестных рейсах.
-  - name: 2. Airport Controller
-    description: Получение рейсов и аэропортов.
   - name: 1. User Controller
     description: 'Действия пользователей (покупка билета, проверка билета).'
+  - name: 2. Airport Controller
+    description: Получение рейсов и аэропортов.
 paths:
   /api/v1/user/races/check-in:
     post:
@@ -23,7 +23,8 @@ paths:
         Позволяет пассажиру выполнить онлайн регистрацию на рейс, используя
         информация, полученную после покупки. Пользователю возвращается его
         boarding pass и еще раз информация о месте, чтобы предоставить это всё
-        конкретно при посадке.
+        конкретно при посадке. Человек получает Boarding Pass, который он просто
+        покажет при посадке
       operationId: checkInFlight
       requestBody:
         content:
@@ -62,10 +63,11 @@ paths:
         - booking
         - 1. User Controller
         - races
-      summary: Бронирование рейса
+      summary: Бронирование рейса.
       description: >-
         Передаётся ID рейса, класс билета и информация о человеке, необходимая
-        для бронирования.Запрос возвращает сгенерированный ID билета
+        для бронирования.Запрос возвращает сгенерированный ID билета.Человек
+        получает ticketNumber из которого в будущем получит Boarding pass
       operationId: bookRace
       requestBody:
         content:
@@ -110,8 +112,8 @@ paths:
   /api/v1/races/search:
     post:
       tags:
-        - 2. Airport Controller
         - races
+        - 2. Airport Controller
       summary: Получение списка маршрутов между двумя точками с опциональными фильтрами
       description: >-
         Возвращает список маршрутов с учетом начальной и конечной точки, даты
@@ -162,8 +164,8 @@ paths:
   '/api/v1/races/get/departure/{airport}':
     get:
       tags:
-        - 2. Airport Controller
         - races
+        - 2. Airport Controller
         - airports
       summary: Получаем расписания улетающих самолётов.
       description: 'Получение списка всех рейсов, улетающих из аэропорта по его названию.'
@@ -186,8 +188,8 @@ paths:
   /api/v1/races/get/available/cities:
     get:
       tags:
-        - 2. Airport Controller
         - cities
+        - 2. Airport Controller
         - flights
       summary: 'Получаем все города, которые участвуют в перелётах.'
       description: >-
@@ -200,7 +202,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DataResponse'
+                type: string
         '500':
           description: Какая-то внутренняя ошибка на сервере
   /api/v1/races/get/available/airports:
@@ -220,14 +222,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DataResponse'
+                type: string
         '500':
           description: Какая-то внутренняя ошибка на сервере
   '/api/v1/races/get/arrival/{airport}':
     get:
       tags:
-        - 2. Airport Controller
         - races
+        - 2. Airport Controller
         - airports
       summary: Получаем расписания прилетающих самолётов.
       description: 'Получение списка всех рейсов, прилетающих в аэропорт по его названию.'
@@ -250,11 +252,14 @@ paths:
   '/api/v1/races/get/airports/{city}':
     get:
       tags:
-        - 2. Airport Controller
         - city
+        - 2. Airport Controller
         - airports
       summary: Получаем список всех аэропортов в указанном городе.
-      description: 'Возвращает список аэропортов, расположенных в заданном городе.'
+      description: >-
+        Возвращает список аэропортов, расположенных в заданном городе.Название
+        города должно точно совпадать с русским или английским названием в базе
+        данных.
       operationId: getAllAirportsInCity
       parameters:
         - name: city
@@ -268,7 +273,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DataResponse'
+                type: string
         '500':
           description: Какая-то внутренняя ошибка на сервере
   /api/v1/get/races_without_total_price:
@@ -356,12 +361,13 @@ components:
       type: object
       properties:
         flightId:
-          type: string
+          type: integer
           description: Айди рейса.
-          example: '123321'
+          format: int64
+          example: 123321
         fareCondition:
           type: string
-          description: 'Класс билета (бизнес, эконом или комфорт).'
+          description: 'Класс билета (Business, Economy или Comfort).'
           example: Economy
         seatNumber:
           type: string
@@ -382,9 +388,13 @@ components:
           description: ФИО пассажира.
           example: TAMARA ZAYCEVA
         passengerContact:
-          type: string
-          description: Контакты пассажира.
-          example: '{"email":"t_petrova1970@postgrespro.ru","phone":"+70886117503"}'
+          $ref: '#/components/schemas/JsonNode'
+    JsonNode:
+      type: object
+      description: Контакты пассажира.
+      example:
+        email: t_petrova1970@postgrespro.ru
+        phone: '+70886117503'
     BookingResponse:
       type: object
       properties:
