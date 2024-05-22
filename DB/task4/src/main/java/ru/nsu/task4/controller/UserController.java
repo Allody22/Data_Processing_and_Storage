@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.nsu.task4.payloads.requests.BookingRaceRequest;
 import ru.nsu.task4.payloads.requests.CheckInRequest;
 import ru.nsu.task4.payloads.response.BookingResponse;
-import ru.nsu.task4.payloads.response.DataResponse;
 import ru.nsu.task4.services.intertaces.IAirportService;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -56,7 +55,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Регистрация на рейс выполнена успешно." +
                     " Пользователь может лететь.",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = DataResponse.class))}),
+                            schema = @Schema(implementation = BookingResponse.class))}),
             @ApiResponse(responseCode = "400", description = "Некорректный запрос, проверьте предоставленные данные"),
             @ApiResponse(responseCode = "404", description = "Бронирование не найдено"),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")

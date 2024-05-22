@@ -10,8 +10,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RouteResponse {
+
     private List<FlightSegment> flights; // Список всех рейсов в маршруте
-    private String totalTravelTime; // Общее время в пути
+
     private Integer totalStops; // Общее количество пересадок
+
+    private String totalWaitingTime; //Общее время ожидания самолёте
+
+    private String totalTravelTime; // Общее время в пути
 
 }

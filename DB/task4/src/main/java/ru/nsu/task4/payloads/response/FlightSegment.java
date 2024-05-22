@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FlightSegment {
+    private Long flightId;
     private String flightNumber;
     private String departureAirport;
     private String arrivalAirport;

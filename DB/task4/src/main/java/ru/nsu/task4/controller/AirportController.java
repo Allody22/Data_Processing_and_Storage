@@ -107,11 +107,11 @@ public class AirportController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Список найденных маршрутов",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = RouteSearchRequest.class))}),
+                            schema = @Schema(implementation = SearchResultResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     @PostMapping("/search")
-    public ResponseEntity<?> listRoutes(@RequestBody RouteSearchRequest request) {
+    public ResponseEntity<?> listRoutes(@RequestBody RouteSearchRequest request) throws JsonProcessingException {
         String ticketClass = request.getBookingClass();
         if (!ticketClass.equals("Economy") && !ticketClass.equals("Business") && !ticketClass.equals("Comfort")) {
             return ResponseEntity.badRequest().body(new MessageResponse("Категория билетов '" + ticketClass + "' не существует."));

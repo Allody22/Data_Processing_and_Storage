@@ -24,6 +24,15 @@ public interface PriceForFullRaceRepository extends JpaRepository<PriceFullOneRa
             @Param("minDepartureTime") OffsetDateTime minDepartureTime,
             @Param("maxDepartureTime") OffsetDateTime maxDepartureTime);
 
+
+    @Query(value = "SELECT * FROM price_full_one_race_analysis p WHERE " +
+            "(CAST(p.departure_airport_name AS json) ->> 'en' = :departureAirport OR CAST(p.departure_airport_name AS json) ->> 'ru' = :departureAirport OR CAST(p.departure_city AS json) ->> 'ru' = :departureAirport OR CAST(p.departure_city AS json) ->> 'en' = :departureAirport) AND " +
+            "p.departure_time BETWEEN :minDepartureTime AND :maxDepartureTime", nativeQuery = true)
+    List<PriceFullOneRaceAnalysis> findFlightsByCityOrAirportAndDepartureTime(
+            @Param("departureAirport") String departureAirport,
+            @Param("minDepartureTime") OffsetDateTime minDepartureTime,
+            @Param("maxDepartureTime") OffsetDateTime maxDepartureTime);
+
     Optional<PriceFullOneRaceAnalysis> findByFlightUid(Long flightUid);
 
     List<PriceFullOneRaceAnalysis> findAllByTotalPrice(BigDecimal bigDecimal);

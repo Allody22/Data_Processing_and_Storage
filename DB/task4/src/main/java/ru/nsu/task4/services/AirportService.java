@@ -24,6 +24,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @AllArgsConstructor
@@ -117,32 +118,41 @@ public class AirportService implements IAirportService {
 
     @Override
     @Transactional
-    public List<RouteResponse> getRaces(String from, String to, Date departureDate, String bookingClass, Integer maxConnections) {
+    public SearchResultResponse getRaces(String from, String to, Date departureDate, String bookingClass, Integer maxConnections) throws JsonProcessingException {
         OffsetDateTime startOfTheDay = departureDate.toInstant().atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfTheDay = startOfTheDay.plusDays(1);
 
-        List<PriceFullOneRaceAnalysis> potentialFlights = priceForFullRaceRepository.findFlightsByAirportNamesAndDepartureTime(from, to, startOfTheDay, endOfTheDay);
+        List<PriceFullOneRaceAnalysis> potentialFlights = findFlightsByCityOrAirport(from, startOfTheDay, endOfTheDay);
         List<RouteResponse> routes = new ArrayList<>();
+        AtomicInteger noAvailabilityCount = new AtomicInteger(0);  // Добавлен счетчик
+
 
         // Добавляем прямые рейсы, соответствующие классу бронирования
         for (PriceFullOneRaceAnalysis flight : potentialFlights) {
-            if (checkBookingClassAvailability(flight, bookingClass)) {
-                List<FlightSegment> segments = new ArrayList<>();
-                segments.add(createFlightSegment(flight, bookingClass));
-                routes.add(new RouteResponse(segments, calculateTotalTravelTime(segments), 0));
+            if (checkArrivalPoint(flight.getArrivalAirportName(), to) || checkArrivalPoint(flight.getArrivalCity(), to)) {
+                if (checkBookingClassAvailability(flight, bookingClass)) {
+                    List<FlightSegment> segments = new ArrayList<>();
+                    segments.add(createFlightSegment(flight, bookingClass));
+                    routes.add(new RouteResponse(segments, 0,"0", calculateTotalTravelTime(segments)));
+                } else {
+                    noAvailabilityCount.incrementAndGet();  // Увеличиваем счетчик, если мест нет
+                }
             }
         }
 
         // Рекурсивный поиск рейсов с пересадками, если maxConnections > 0
         if (maxConnections > 0) {
             for (PriceFullOneRaceAnalysis flight : potentialFlights) {
-                findConnectingFlights(flight, to, endOfTheDay, bookingClass, maxConnections, 0, new ArrayList<>(List.of(flight)), routes);
+                findConnectingFlights(flight, to, endOfTheDay, bookingClass, maxConnections, 0, new ArrayList<>(List.of(flight)), routes, noAvailabilityCount);
             }
         }
 
-        return routes;
+        return new SearchResultResponse(routes.size(), noAvailabilityCount.get(), routes);
     }
 
+    private List<PriceFullOneRaceAnalysis> findFlightsByCityOrAirport(String from, OffsetDateTime startOfTheDay, OffsetDateTime endOfTheDay) {
+        return priceForFullRaceRepository.findFlightsByCityOrAirportAndDepartureTime(from, startOfTheDay, endOfTheDay);
+    }
 
     private boolean checkBookingClassAvailability(PriceFullOneRaceAnalysis flight, String bookingClass) {
         return ticketsFlightsRepository.existsByFlight_FlightIdAndFareCondition(flight.getFlightUid(), bookingClass);
@@ -150,6 +160,7 @@ public class AirportService implements IAirportService {
 
     private FlightSegment createFlightSegment(PriceFullOneRaceAnalysis flight, String bookingClass) {
         return new FlightSegment(
+                flight.getFlightUid(),
                 flight.getFlightNumber(),
                 flight.getDepartureAirportName(),
                 flight.getArrivalAirportName(),
@@ -162,32 +173,56 @@ public class AirportService implements IAirportService {
 
     private void findConnectingFlights(PriceFullOneRaceAnalysis lastFlight, String finalDestination, OffsetDateTime endDate,
                                        String bookingClass, int maxConnections, int currentConnections,
-                                       List<PriceFullOneRaceAnalysis> currentRoute, List<RouteResponse> allRoutes) {
+                                       List<PriceFullOneRaceAnalysis> currentRoute, List<RouteResponse> allRoutes,
+                                       AtomicInteger noAvailabilityCount) throws JsonProcessingException {
         if (currentConnections >= maxConnections) {
             return;
         }
 
-        List<PriceFullOneRaceAnalysis> possibleNextFlights = priceForFullRaceRepository.findFlightsByAirportNamesAndDepartureTime(
-                lastFlight.getArrivalAirportName(), finalDestination, lastFlight.getArrivalTime().plusHours(3), endDate);
+        AirportsNamesResponse airportNames = getAirportNames(lastFlight.getArrivalAirportName());
+        List<PriceFullOneRaceAnalysis> possibleNextFlights = findFlightsByCityOrAirport(airportNames.getEngAirportName(), lastFlight.getArrivalTime().plusHours(1), endDate.plusHours(8));
 
         for (PriceFullOneRaceAnalysis nextFlight : possibleNextFlights) {
-            if (!checkBookingClassAvailability(nextFlight, bookingClass)) continue;
-
+            // На рейс просто нет свободных мест
+            if (!checkBookingClassAvailability(nextFlight, bookingClass)) {
+                noAvailabilityCount.incrementAndGet();
+                continue;
+            }
             List<PriceFullOneRaceAnalysis> newRoute = new ArrayList<>(currentRoute);
             newRoute.add(nextFlight);
-            allRoutes.add(buildRouteResponse(newRoute, bookingClass));
 
-            // Рекурсивный поиск дальнейших пересадок
-            findConnectingFlights(nextFlight, finalDestination, endDate, bookingClass, maxConnections,
-                    currentConnections + 1, newRoute, allRoutes);
+            // Проверка, является ли текущий рейс конечным пунктом назначения
+            if (checkArrivalPoint(nextFlight.getArrivalAirportName(), finalDestination) || checkArrivalPoint(nextFlight.getArrivalCity(), finalDestination)) {
+                allRoutes.add(buildRouteResponse(newRoute, bookingClass));
+            } else {
+                // Рекурсивный поиск дальнейших пересадок
+                findConnectingFlights(nextFlight, finalDestination, endDate, bookingClass, maxConnections,
+                        currentConnections + 1, newRoute, allRoutes, noAvailabilityCount);
+            }
         }
     }
 
+    private boolean checkArrivalPoint(String arrivalPoint, String pointTo) throws JsonProcessingException {
+        var names = getAirportNames(arrivalPoint);
+        return names.getEngAirportName().equals(pointTo) || names.getRuAirportName().equals(pointTo);
+    }
+
+    private AirportsNamesResponse getAirportNames(String airportName) throws JsonProcessingException {
+        JsonNode rootNode = objectMapper.readTree(airportName);
+
+        String englishValue = rootNode.get("en").asText();
+        String russianValue = rootNode.get("ru").asText();
+        return new AirportsNamesResponse(russianValue, englishValue);
+    }
 
     private RouteResponse buildRouteResponse(List<PriceFullOneRaceAnalysis> routeFlights, String bookingClass) {
         List<FlightSegment> segments = new ArrayList<>();
-        for (PriceFullOneRaceAnalysis flight : routeFlights) {
+        Duration totalWaitingTime = Duration.ZERO;
+
+        for (int i = 0; i < routeFlights.size(); i++) {
+            PriceFullOneRaceAnalysis flight = routeFlights.get(i);
             segments.add(new FlightSegment(
+                    flight.getFlightUid(),
                     flight.getFlightNumber(),
                     flight.getDepartureAirportName(),
                     flight.getArrivalAirportName(),
@@ -196,17 +231,24 @@ public class AirportService implements IAirportService {
                     calculateDuration(flight.getDepartureTime(), flight.getArrivalTime()),
                     bookingClass
             ));
-        }
-        String totalTravelTime = calculateTotalTravelTime(segments);
-        return new RouteResponse(segments, totalTravelTime, segments.size() - 1);
-    }
 
+            // Считаем время ожидания, если это не первый рейс
+            if (i > 0) {
+                OffsetDateTime previousArrival = routeFlights.get(i - 1).getArrivalTime();
+                OffsetDateTime currentDeparture = flight.getDepartureTime();
+                totalWaitingTime = totalWaitingTime.plus(Duration.between(previousArrival, currentDeparture));
+            }
+        }
+
+        String totalTravelTime = calculateTotalTravelTime(segments);
+        String totalWaitingTimeStr = String.format("%d hours, %d min", totalWaitingTime.toHours(), totalWaitingTime.toMinutesPart());
+        return new RouteResponse(segments, segments.size() - 1, totalWaitingTimeStr, totalTravelTime);
+    }
 
     private String calculateDuration(OffsetDateTime departureTime, OffsetDateTime arrivalTime) {
         Duration duration = Duration.between(departureTime, arrivalTime);
         return String.format("%d hours, %d min", duration.toHours(), duration.toMinutesPart());
     }
-
 
     private String calculateTotalTravelTime(List<FlightSegment> segments) {
         if (segments.isEmpty()) return "0 hours, 0 min";
@@ -277,7 +319,7 @@ public class AirportService implements IAirportService {
         Bookings userBooking = new Bookings();
         userBooking.setBookDate(OffsetDateTime.now());
         userBooking.setBookRef(generateUniqueBookingRef());
-        userBooking.setTotalAmount(bookingRaceRequest.getPrice());
+        userBooking.setTotalAmount(userMoney);
         bookingsRepository.save(userBooking);
         // Создание и сохранение нового билета
 
@@ -294,6 +336,7 @@ public class AirportService implements IAirportService {
 
 
         flightInfo.setSoldSeatsNumber(flightInfo.getSoldSeatsNumber() + 1);
+        flightInfo.setTotalPrice(flightInfo.getTotalPrice().add(userMoney));
         priceForFullRaceRepository.save(flightInfo);
 
         // Создание и сохранение записи о полете
