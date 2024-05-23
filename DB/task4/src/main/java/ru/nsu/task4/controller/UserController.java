@@ -27,9 +27,6 @@ public class UserController {
 
     private final IAirportService airportService;
 
-
-    //TODO не выбирает конкретное место, мы ничего не говорим про места, но увеличиваем счётчик мест,
-    // а деньги не трогаем никак, список flightId на несколько рейсов сразу. Несколько боурдинг пасс
     @Operation(summary = "Бронирование рейса.",
             description = "Передаётся ID рейса, класс билета и информация о человеке, необходимая для бронирования." +
                     "Запрос возвращает сгенерированный ID билета." +
@@ -38,7 +35,7 @@ public class UserController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Рейс успешно забронирован, уникальный айди билета создан",
                     content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = BookingResponse.class))}),
+                            schema = @Schema(implementation = BookingResponse[].class))}),
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     @PostMapping("/races/book")
@@ -66,6 +63,4 @@ public class UserController {
     public ResponseEntity<?> checkInFlight(@RequestBody CheckInRequest checkInRequest) {
         return ResponseEntity.ok(airportService.checkInOnlineForAFlight(checkInRequest));
     }
-
-    //TODO получать свободные и занятые места на самолёты
 }

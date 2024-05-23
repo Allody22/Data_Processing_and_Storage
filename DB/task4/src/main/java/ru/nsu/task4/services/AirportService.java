@@ -266,13 +266,22 @@ public class AirportService implements IAirportService {
 
 
     @Transactional
-    public BookingResponse createBooking(BookingRaceRequest bookingRaceRequest) {
-        Long flightId = bookingRaceRequest.getFlightId();
+    public List<BookingResponse> createBooking(BookingRaceRequest bookingRaceRequest) {
+
+        List<BookingResponse> bookingResponses = new ArrayList<>();
+        for (Long currentFlightId : bookingRaceRequest.getFlightId()) {
+            bookingResponses.add(bookOneRaceForResponse(currentFlightId, bookingRaceRequest.getFareCondition(), bookingRaceRequest.getPassengerId(),
+                    bookingRaceRequest.getPassengerName(), bookingRaceRequest.getPassengerContact()));
+        }
+        return bookingResponses;
+    }
+
+    private BookingResponse bookOneRaceForResponse(Long flightId, String fareCondition, String passengerId,
+                                                   String passengerName, JsonNode passengerContactJsonNode) {
 
         Flights currentFlightFromDB = flightsRepository.findAllByFlightId(flightId)
                 .orElseThrow(() -> new NotFoundException("Flight not found in actual db"));
 
-        //TODO проверка логики
         if (currentFlightFromDB.getActualArrival() != null || currentFlightFromDB.getActualDeparture() != null) {
             throw new RaceIsGoneException("You can't book seats on this flight anymore. It's already finished.");
         }
@@ -281,21 +290,17 @@ public class AirportService implements IAirportService {
                 .orElseThrow(() -> new NotFoundException("Flight not found in my db"));
 
         String aircraftCode = currentFlightFromDB.getAircraftCode();
-        BigDecimal userMoney = bookingRaceRequest.getPrice();
-        if (seatsRepository.existsBySeatNoAndAircraft_AircraftCodeAndFareCondition(
-                bookingRaceRequest.getSeatNumber(), aircraftCode, bookingRaceRequest.getFareCondition())) {
-            throw new NoSeatsException("Seat does not exist or fare condition mismatch");
+        if (!seatsRepository.existsByAircraft_AircraftCodeAndFareCondition(aircraftCode, fareCondition)) {
+            throw new NoSeatsException("Fare condition '" + fareCondition + "' mismatch for aircraft code "
+                    + aircraftCode + " and flight " + flightId);
         }
-
-        String fareCondition = bookingRaceRequest.getFareCondition();
+        BigDecimal moneyForRace;
         switch (fareCondition) {
             case "Business" -> {
                 if (flightInfo.getSoldSeatsBusiness() >= flightInfo.getTotalSeatsBusiness()) {
                     throw new NoSeatsException("No business seats available");
                 } else {
-                    if (userMoney.compareTo(flightInfo.getAveragePriceForOneBusinessSeat()) < 0) {
-                        throw new NotEnoughMoneyException("Not enough money for business seats");
-                    }
+                    moneyForRace = flightInfo.getAveragePriceForOneBusinessSeat();
                     flightInfo.setSoldSeatsBusiness(flightInfo.getSoldSeatsBusiness() + 1);
                 }
             }
@@ -303,9 +308,7 @@ public class AirportService implements IAirportService {
                 if (flightInfo.getSoldSeatsComfort() >= flightInfo.getTotalSeatsComfort()) {
                     throw new NoSeatsException("No comfort seats available");
                 } else {
-                    if (userMoney.compareTo(flightInfo.getAveragePriceForOneComfortSeat()) < 0) {
-                        throw new NotEnoughMoneyException("Not enough money for comfort seats");
-                    }
+                    moneyForRace = flightInfo.getAveragePriceForOneComfortSeat();
                     flightInfo.setSoldSeatsComfort(flightInfo.getSoldSeatsComfort() + 1);
                 }
             }
@@ -313,9 +316,7 @@ public class AirportService implements IAirportService {
                 if (flightInfo.getSoldSeatsEconomy() >= flightInfo.getTotalSeatsEconomy()) {
                     throw new NoSeatsException("No economy seats available");
                 } else {
-                    if (userMoney.compareTo(flightInfo.getAveragePriceForOneEconomySeat()) < 0) {
-                        throw new NotEnoughMoneyException("Not enough money for economy seats");
-                    }
+                    moneyForRace = flightInfo.getAveragePriceForOneEconomySeat();
                     flightInfo.setSoldSeatsEconomy(flightInfo.getSoldSeatsEconomy() + 1);
                 }
             }
@@ -326,16 +327,17 @@ public class AirportService implements IAirportService {
         Bookings userBooking = new Bookings();
         userBooking.setBookDate(OffsetDateTime.now());
         userBooking.setBookRef(generateUniqueBookingRef());
-        userBooking.setTotalAmount(userMoney);
+
+        userBooking.setTotalAmount(moneyForRace);
         bookingsRepository.save(userBooking);
         // Создание и сохранение нового билета
 
-        var passengerContact = serializeToJson(bookingRaceRequest.getPassengerContact());
+        var passengerContact = serializeToJson(passengerContactJsonNode);
         Tickets newTicket = new Tickets();
         newTicket.setTicketNumber(generateUniqueTicketNumber());
-        newTicket.setPassengerId(bookingRaceRequest.getPassengerId());
-        newTicket.setPassengerName(bookingRaceRequest.getPassengerName());
-        newTicket.setContactData(bookingRaceRequest.getPassengerContact());
+        newTicket.setPassengerId(passengerId);
+        newTicket.setPassengerName(passengerName);
+        newTicket.setContactData(passengerContactJsonNode);
         newTicket.setBooking(userBooking);
 
 
@@ -343,7 +345,7 @@ public class AirportService implements IAirportService {
 
 
         flightInfo.setSoldSeatsNumber(flightInfo.getSoldSeatsNumber() + 1);
-        flightInfo.setTotalPrice(flightInfo.getTotalPrice().add(userMoney));
+        flightInfo.setTotalPrice(flightInfo.getTotalPrice().add(moneyForRace));
         priceForFullRaceRepository.save(flightInfo);
 
         // Создание и сохранение записи о полете
@@ -352,9 +354,10 @@ public class AirportService implements IAirportService {
         newTicketFlight.setId(ticketFlightId);
         newTicketFlight.setTicket(newTicket);
         newTicketFlight.setFlight(currentFlightFromDB);
-        newTicketFlight.setFareCondition(bookingRaceRequest.getFareCondition());
-        newTicketFlight.setAmount(bookingRaceRequest.getPrice());
+        newTicketFlight.setFareCondition(fareCondition);
+        newTicketFlight.setAmount(moneyForRace);
         ticketsFlightsRepository.save(newTicketFlight);
+
 
         return new BookingResponse(newTicket.getTicketNumber(), userBooking.getBookRef());
     }
@@ -410,20 +413,26 @@ public class AirportService implements IAirportService {
     @Override
     public BoardingPassResponse checkInOnlineForAFlight(CheckInRequest checkInRequest) {
         BoardingPassResponse boardingPassResponse = new BoardingPassResponse();
-        String userSeatNo = checkInRequest.getSeatNumber();
+
         Tickets userTicket = ticketsRepository.findByBooking_BookRef(checkInRequest.getBookRef())
                 .orElseThrow(() -> new NotFoundException("Booking not found"));
         TicketFlights bookedUserTicket = ticketsFlightsRepository.findByTicket_TicketNumber(userTicket.getTicketNumber())
                 .orElseThrow(() -> new NotFoundException("Ticket not found"));
 
-        if (!bookedUserTicket.getFareCondition().equals(checkInRequest.getFareCondition())) {
-            throw new LanguageNotFoundException("Fare condition mismatch");
+        // Проверка, создан ли уже BoardingPass для данного билета
+        if (boardingPassRepository.existsByTicketNoAndFlightId(userTicket.getTicketNumber(), bookedUserTicket.getFlight().getFlightId())) {
+            throw new AlreadyCheckedInException("You have already checked in for this flight.");
         }
+
+        String userFareCondition = bookedUserTicket.getFareCondition();
 
         Flights userFlight = flightsRepository.findByFlightId(bookedUserTicket.getFlight().getFlightId())
                 .orElseThrow(() -> new NotFoundException("Flight is not found"));
+
+        String userSeatNo = findFirstFreeSeat(userFlight.getAircraftCode(), userFlight.getFlightId(), userFareCondition);
+
         Seats seat = seatsRepository.findBySeatNoAndAircraft_AircraftCodeAndFareCondition(
-                        userSeatNo, userFlight.getAircraftCode(), checkInRequest.getFareCondition())
+                        userSeatNo, userFlight.getAircraftCode(), userFareCondition)
                 .orElseThrow(() -> new NotFoundException("Seat does not exist or fare condition mismatch"));
 
         if (isSeatOccupied(userFlight.getFlightId(), seat.getSeatNo())) {
@@ -440,9 +449,27 @@ public class AirportService implements IAirportService {
 
         boardingPassResponse.setBoardingPassNumber(String.valueOf(newBoardingNo));
 
-        boardingPassResponse.setFareCondition(checkInRequest.getFareCondition());
+        boardingPassResponse.setFareCondition(userFareCondition);
         boardingPassResponse.setSeatNumber(userSeatNo);
         return boardingPassResponse;
+    }
+
+    private String findFirstFreeSeat(String aircraftCode, Long flightId, String fareCondition) {
+        List<String> occupiedSeats = boardingPassRepository.findOccupiedSeatsByFlightIdAndFareCondition(flightId, fareCondition);
+
+        List<String> allSeats = seatsRepository.findSeatsByAircraftCodeAndFareCondition(aircraftCode, fareCondition);
+        if (allSeats.size() == occupiedSeats.size()) {
+            throw new NoSeatsException("No seats available on flight " + flightId + " of the type " + fareCondition);
+        }
+
+        Set<String> occupiedSeatsSet = new HashSet<>(occupiedSeats);
+
+        for (String seat : allSeats) {
+            if (!occupiedSeatsSet.contains(seat)) {
+                return seat;
+            }
+        }
+        throw new NoSeatsException("No seats available on flight " + flightId + " of the type " + fareCondition);
     }
 
     /**

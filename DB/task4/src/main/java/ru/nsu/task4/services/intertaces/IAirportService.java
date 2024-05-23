@@ -75,9 +75,9 @@ public interface IAirportService {
      * Создание бронирования для выбранного маршрута для одного пассажира.
      *
      * @param bookingRaceRequest Вся информация, необходимая для бронирования билета.
-     * @return сгенерированная информация о забронированном месте.
+     * @return сгенерированные билеты и информация о бронировании для каждого рейса, на которые собрался человек.
      */
-    BookingResponse createBooking(BookingRaceRequest bookingRaceRequest) throws JsonProcessingException;
+    List<BookingResponse> createBooking(BookingRaceRequest bookingRaceRequest) throws JsonProcessingException;
 
     /**
      * ЧекИн перед посадкой на рейс для проверки информации.

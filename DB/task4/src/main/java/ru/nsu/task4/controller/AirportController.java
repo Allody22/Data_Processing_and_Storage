@@ -40,7 +40,7 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/available/cities")
     @Transactional
-    public ResponseEntity<?> getAvailableCities(@RequestHeader("lang") String lang) throws JsonProcessingException {
+    public ResponseEntity<?> getAvailableCities(@RequestHeader("Accept-Language") String lang) throws JsonProcessingException {
         return ResponseEntity.ok(airportService.getAllAvailableCities(lang));
     }
 
@@ -54,7 +54,7 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/available/airports")
     @Transactional
-    public ResponseEntity<?> getAllAvailableAirports(@RequestHeader("lang") String lang) throws JsonProcessingException {
+    public ResponseEntity<?> getAllAvailableAirports(@RequestHeader("Accept-Language") String lang) throws JsonProcessingException {
         return ResponseEntity.ok(airportService.getAllAvailableAirports(lang));
     }
 
@@ -69,7 +69,7 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/airports/{city}")
     @Transactional
-    public ResponseEntity<?> getAllAirportsInCity(@RequestHeader("lang") String lang, @Valid @NotNull @PathVariable String city) throws JsonProcessingException {
+    public ResponseEntity<?> getAllAirportsInCity(@RequestHeader("Accept-Language") String lang, @Valid @NotNull @PathVariable String city) throws JsonProcessingException {
         return ResponseEntity.ok(airportService.getAllAirportsInCity(lang, city));
     }
 
@@ -83,7 +83,7 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/arrival/{airport}")
     @Transactional
-    public ResponseEntity<?> getAirportsArrivalRaces(@RequestHeader("lang") String lang, @Valid @NotNull @PathVariable String airport) throws JsonProcessingException {
+    public ResponseEntity<?> getAirportsArrivalRaces(@RequestHeader("Accept-Language") String lang, @Valid @NotNull @PathVariable String airport) throws JsonProcessingException {
         return ResponseEntity.ok(airportService.getArrivalTimetableOfTheAirport(lang, airport));
     }
 
@@ -97,7 +97,7 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/departure/{airport}")
     @Transactional
-    public ResponseEntity<?> getAirportsDepartureRaces(@RequestHeader("lang") String lang, @Valid @NotNull @PathVariable String airport) throws JsonProcessingException {
+    public ResponseEntity<?> getAirportsDepartureRaces(@RequestHeader("Accept-Language") String lang, @Valid @NotNull @PathVariable String airport) throws JsonProcessingException {
         return ResponseEntity.ok(airportService.getDepartureTimetableOfTheAirport(lang, airport));
     }
 
@@ -111,7 +111,7 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     @PostMapping("/search")
-    public ResponseEntity<?> listRoutes(@RequestHeader("lang") String lang, @RequestBody RouteSearchRequest request) throws JsonProcessingException {
+    public ResponseEntity<?> listRoutes(@RequestHeader("Accept-Language") String lang, @RequestBody RouteSearchRequest request) throws JsonProcessingException {
         String ticketClass = request.getBookingClass();
         if (!ticketClass.equals("Economy") && !ticketClass.equals("Business") && !ticketClass.equals("Comfort")) {
             return ResponseEntity.badRequest().body(new MessageResponse("Категория билетов '" + ticketClass + "' не существует."));

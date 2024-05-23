@@ -42,6 +42,16 @@ public class ControllerAdvice {
         return errors;
     }
 
+    @ExceptionHandler(AlreadyCheckedInException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> handleAlreadyCheckedInException(AlreadyCheckedInException ex, Locale locale) {
+        Map<String, String> errors = new HashMap<>();
+        String errorMessage = ex.getMessage();
+        errors.put("message", errorMessage);
+        return errors;
+    }
+
+
     @ExceptionHandler(RaceIsGoneException.class)
     @ResponseStatus(HttpStatus.GONE)
     public Map<String, String> handleRaceIsGoneException(RaceIsGoneException ex, Locale locale) {

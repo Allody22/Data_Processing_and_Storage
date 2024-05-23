@@ -6,11 +6,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.nsu.task4.model.Airport;
-import ru.nsu.task4.payloads.response.AirportNameResponse;
 
-import javax.persistence.SqlResultSetMapping;
 import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface AirportRepository extends JpaRepository<Airport, String> {

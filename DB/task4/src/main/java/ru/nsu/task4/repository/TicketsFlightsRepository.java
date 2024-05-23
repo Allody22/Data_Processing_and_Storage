@@ -6,7 +6,6 @@ import org.springframework.stereotype.Repository;
 import ru.nsu.task4.model.TicketFlights;
 import ru.nsu.task4.model.dto.FlightSoldCodeSeatsCountDTO;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +16,6 @@ public interface TicketsFlightsRepository extends JpaRepository<TicketFlights, S
 
     Optional<TicketFlights> findByTicket_TicketNumber(String ticketNumber);
 
-    List<TicketFlights> findByFlight_FlightId(Long flightId);
 
     @Query("SELECT new ru.nsu.task4.model.dto.FlightSoldCodeSeatsCountDTO(" +
             "tf.flight.flightId, tf.flight.aircraftCode, " +
@@ -29,7 +27,4 @@ public interface TicketsFlightsRepository extends JpaRepository<TicketFlights, S
             "SUM (CASE WHEN tf.fareCondition = 'Comfort' THEN tf.amount ELSE null END)) " +
             "FROM TicketFlights tf GROUP BY tf.flight.flightId, tf.flight.aircraftCode")
     List<FlightSoldCodeSeatsCountDTO> getAllSoldSeatsCount();
-
-
-    List<TicketFlights> findByFlight_FlightIdAndFareConditionAndAmountGreaterThan(Long flightId, String fareCondition, BigDecimal amount);
 }
