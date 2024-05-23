@@ -1,6 +1,5 @@
 package ru.nsu.task4.payloads.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CitiesNamesResponse {
+public class AirportNameResponse {
 
-    private String cityName;
+    private String airportName;
+
+    private String airportCode;
 }

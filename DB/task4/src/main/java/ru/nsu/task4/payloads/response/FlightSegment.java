@@ -10,8 +10,13 @@ import lombok.NoArgsConstructor;
 public class FlightSegment {
     private Long flightId;
     private String flightNumber;
-    private String departureAirport;
-    private String arrivalAirport;
+    private String departureAirportName;
+    private String arrivalAirportName;
+
+//    private AirportsNamesResponse departureAirportsNames;
+//    private AirportsNamesResponse arrivalAirportsNames;
+    private String departureCity;
+    private String arrivalCity;
     private String departureTime;
     private String arrivalTime;
     private String duration; // Продолжительность полета

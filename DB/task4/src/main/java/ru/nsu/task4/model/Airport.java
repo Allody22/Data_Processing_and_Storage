@@ -1,12 +1,20 @@
 package ru.nsu.task4.model;
 
 import lombok.Data;
+import ru.nsu.task4.payloads.response.AirportNameResponse;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+@SqlResultSetMapping(
+        name = "AirportNameResponseMapping",
+        classes = @ConstructorResult(
+                targetClass = AirportNameResponse.class,
+                columns = {
+                        @ColumnResult(name = "airportCode", type = String.class),
+                        @ColumnResult(name = "airportName", type = String.class)
+                }
+        )
+)
 @Entity
 @Table(name = "airports_data")
 @Data

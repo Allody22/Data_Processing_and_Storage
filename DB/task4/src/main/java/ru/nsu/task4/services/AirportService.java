@@ -9,6 +9,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.nsu.task4.model.*;
+import ru.nsu.task4.model.exceptions.*;
 import ru.nsu.task4.model.ids.TicketFlightId;
 import ru.nsu.task4.payloads.requests.BookingRaceRequest;
 import ru.nsu.task4.payloads.requests.CheckInRequest;
@@ -16,7 +17,6 @@ import ru.nsu.task4.payloads.response.*;
 import ru.nsu.task4.repository.*;
 import ru.nsu.task4.services.intertaces.IAirportService;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -51,66 +51,51 @@ public class AirportService implements IAirportService {
 
     @Override
     @Transactional
-    public Set<CitiesNamesResponse> getAllAvailableCities() {
+    public Set<CitiesNamesResponse> getAllAvailableCities(String lang) throws JsonProcessingException {
         Set<CitiesNamesResponse> cities = new HashSet<>();
         for (Airport airport : airportRepository.findAll()) {
-            try {
-                CitiesNamesResponse citiesNamesResponse = objectMapper.readValue(airport.getCity(), CitiesNamesResponse.class);
-                cities.add(citiesNamesResponse);
-            } catch (IOException e) {
-                log.error("Error parsing city JSON for airport: {}", airport.getAirportCode(), e);
-            }
+            cities.add(getCitiesNames(airport.getCity(), lang));
         }
         return cities;
     }
 
-    @Override
-    @Transactional
-    public Set<AirportsNamesResponse> getAllAvailableAirports() throws JsonProcessingException {
-        Set<AirportsNamesResponse> airportsNamesResponses = new HashSet<>();
-        for (Airport airport : airportRepository.findAll()) {
-            airportsNamesResponses.add(getTwoAirportNames(airport.getAirportName()));
-        }
-        return airportsNamesResponses;
-
-    }
 
     @Override
     @Transactional
-    public Set<AirportsNamesResponse> getAllAirportsInCity(String city) throws JsonProcessingException {
-        Set<AirportsNamesResponse> airportsNamesResponses = new HashSet<>();
+    public Set<AirportNameResponse> getAllAirportsInCity(String lang, String city) throws JsonProcessingException {
+        Set<AirportNameResponse> airportsNamesResponses = new HashSet<>();
         for (Airport airport : airportRepository.findAllAirportsInTheCityByRuOrEnglishName(city)) {
-            airportsNamesResponses.add(getTwoAirportNames(airport.getAirportName()));
+            airportsNamesResponses.add(getAirportName(airport.getAirportName(), airport.getAirportCode(), lang));
         }
         return airportsNamesResponses;
     }
 
     @Override
     @Transactional
-    public List<ArrivalFlights> getArrivalTimetableOfTheAirport(String airport) throws JsonProcessingException {
+    public List<ArrivalFlights> getArrivalTimetableOfTheAirport(String lang, String airport) throws JsonProcessingException {
         List<ArrivalFlights> arrivalFlights = new ArrayList<>();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         for (PriceFullOneRaceAnalysis flightInfo : priceForFullRaceRepository.findAll()) {
             if (flightInfo.getArrivalAirportName().contains(airport)) {
-                AirportsNamesResponse airportName = getTwoAirportNames(flightInfo.getDepartureAirportName());
+                AirportNameResponse airportName = getAirportName(flightInfo.getDepartureAirportName(), flightInfo.getAircraftCode(), lang);
                 arrivalFlights.add(new ArrivalFlights(flightInfo.getArrivalTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH),
-                        flightInfo.getArrivalTime().format(dateTimeFormatter), flightInfo.getFlightNumber(), airportName.getRuAirportName(), airportName.getEngAirportName()));
+                        flightInfo.getArrivalTime().format(dateTimeFormatter), flightInfo.getFlightNumber(), airportName.getAirportName(), airportName.getAirportCode()));
             }
         }
         return arrivalFlights;
     }
 
     @Override
-    public List<DepartureFlights> getDepartureTimetableOfTheAirport(String airport) throws JsonProcessingException {
+    public List<DepartureFlights> getDepartureTimetableOfTheAirport(String lang, String airport) throws JsonProcessingException {
         List<DepartureFlights> departureFlights = new ArrayList<>();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         for (PriceFullOneRaceAnalysis flightInfo : priceForFullRaceRepository.findAll()) {
             if (flightInfo.getDepartureAirportName().contains(airport)) {
-                AirportsNamesResponse airportName = getTwoAirportNames(flightInfo.getArrivalAirportName());
+                AirportNameResponse airportName = getAirportName(flightInfo.getDepartureAirportName(), flightInfo.getAircraftCode(), lang);
                 departureFlights.add(new DepartureFlights(flightInfo.getArrivalTime().getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.ENGLISH),
-                        flightInfo.getArrivalTime().format(dateTimeFormatter), flightInfo.getFlightNumber(), airportName.getRuAirportName(), airportName.getEngAirportName()));
+                        flightInfo.getArrivalTime().format(dateTimeFormatter), flightInfo.getFlightNumber(), airportName.getAirportName(), airportName.getAirportCode()));
             }
         }
         return departureFlights;
@@ -118,22 +103,21 @@ public class AirportService implements IAirportService {
 
     @Override
     @Transactional
-    public SearchResultResponse getRaces(String from, String to, Date departureDate, String bookingClass, Integer maxConnections) throws JsonProcessingException {
+    public SearchResultResponse getRaces(String lang, String from, String to, Date departureDate, String bookingClass, Integer maxConnections) throws JsonProcessingException {
         OffsetDateTime startOfTheDay = departureDate.toInstant().atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfTheDay = startOfTheDay.plusDays(1);
 
-        List<PriceFullOneRaceAnalysis> potentialFlights = findFlightsByCityOrAirport(from, startOfTheDay, endOfTheDay);
+        List<PriceFullOneRaceAnalysis> potentialFlights = findFlightsByCityOrAirport(lang, from, startOfTheDay, endOfTheDay);
         List<RouteResponse> routes = new ArrayList<>();
         AtomicInteger noAvailabilityCount = new AtomicInteger(0);  // Добавлен счетчик
 
-
         // Добавляем прямые рейсы, соответствующие классу бронирования
         for (PriceFullOneRaceAnalysis flight : potentialFlights) {
-            if (checkArrivalPoint(flight.getArrivalAirportName(), to) || checkArrivalPoint(flight.getArrivalCity(), to)) {
+            if (checkArrivalAirportPoint(flight.getArrivalAirportName(), flight.getAircraftCode(), to, lang) || checkArrivalCityPoint(flight.getArrivalCity(), to, lang)) {
                 if (checkBookingClassAvailability(flight, bookingClass)) {
                     List<FlightSegment> segments = new ArrayList<>();
-                    segments.add(createFlightSegment(flight, bookingClass));
-                    routes.add(new RouteResponse(segments, 0,"0", calculateTotalTravelTime(segments)));
+                    segments.add(createFlightSegment(flight, bookingClass, lang));
+                    routes.add(new RouteResponse(segments, 0, "0", calculateTotalTravelTime(segments)));
                 } else {
                     noAvailabilityCount.incrementAndGet();  // Увеличиваем счетчик, если мест нет
                 }
@@ -143,27 +127,35 @@ public class AirportService implements IAirportService {
         // Рекурсивный поиск рейсов с пересадками, если maxConnections > 0
         if (maxConnections > 0) {
             for (PriceFullOneRaceAnalysis flight : potentialFlights) {
-                findConnectingFlights(flight, to, endOfTheDay, bookingClass, maxConnections, 0, new ArrayList<>(List.of(flight)), routes, noAvailabilityCount);
+                Set<String> initialVisitedCities = new HashSet<>();
+                String arrivalCityName = getCitiesNames(flight.getArrivalCity(), lang).getCityName();
+                initialVisitedCities.add(arrivalCityName);
+                initialVisitedCities.add(from);
+                findConnectingFlights(flight, to, endOfTheDay, bookingClass, maxConnections, 0, new ArrayList<>(List.of(flight)),
+                        routes, noAvailabilityCount, initialVisitedCities, lang);
             }
         }
+
 
         return new SearchResultResponse(routes.size(), noAvailabilityCount.get(), routes);
     }
 
-    private List<PriceFullOneRaceAnalysis> findFlightsByCityOrAirport(String from, OffsetDateTime startOfTheDay, OffsetDateTime endOfTheDay) {
-        return priceForFullRaceRepository.findFlightsByCityOrAirportAndDepartureTime(from, startOfTheDay, endOfTheDay);
+    private List<PriceFullOneRaceAnalysis> findFlightsByCityOrAirport(String lang, String from, OffsetDateTime startOfTheDay, OffsetDateTime endOfTheDay) {
+        return priceForFullRaceRepository.findFlightsByCityOrAirportAndDepartureTime(lang, from, startOfTheDay, endOfTheDay);
     }
 
     private boolean checkBookingClassAvailability(PriceFullOneRaceAnalysis flight, String bookingClass) {
         return ticketsFlightsRepository.existsByFlight_FlightIdAndFareCondition(flight.getFlightUid(), bookingClass);
     }
 
-    private FlightSegment createFlightSegment(PriceFullOneRaceAnalysis flight, String bookingClass) {
+    private FlightSegment createFlightSegment(PriceFullOneRaceAnalysis flight, String bookingClass, String lang) throws JsonProcessingException {
         return new FlightSegment(
                 flight.getFlightUid(),
                 flight.getFlightNumber(),
-                flight.getDepartureAirportName(),
-                flight.getArrivalAirportName(),
+                getAirportName(flight.getDepartureAirportName(), "0", lang).getAirportName(),
+                getAirportName(flight.getArrivalAirportName(), "0", lang).getAirportName(),
+                getCitiesNames(flight.getDepartureCity(), lang).getCityName(),
+                getCitiesNames(flight.getArrivalCity(), lang).getCityName(),
                 flight.getDepartureTime().toString(),
                 flight.getArrivalTime().toString(),
                 calculateDuration(flight.getDepartureTime(), flight.getArrivalTime()),
@@ -174,15 +166,22 @@ public class AirportService implements IAirportService {
     private void findConnectingFlights(PriceFullOneRaceAnalysis lastFlight, String finalDestination, OffsetDateTime endDate,
                                        String bookingClass, int maxConnections, int currentConnections,
                                        List<PriceFullOneRaceAnalysis> currentRoute, List<RouteResponse> allRoutes,
-                                       AtomicInteger noAvailabilityCount) throws JsonProcessingException {
+                                       AtomicInteger noAvailabilityCount, Set<String> visitedCities, String lang) throws JsonProcessingException {
         if (currentConnections >= maxConnections) {
             return;
         }
 
-        AirportsNamesResponse airportNames = getAirportNames(lastFlight.getArrivalAirportName());
-        List<PriceFullOneRaceAnalysis> possibleNextFlights = findFlightsByCityOrAirport(airportNames.getEngAirportName(), lastFlight.getArrivalTime().plusHours(1), endDate.plusHours(8));
-
+        AirportNameResponse airportNames = getAirportName(lastFlight.getArrivalAirportName(), lastFlight.getAircraftCode(), lang);
+        List<PriceFullOneRaceAnalysis> possibleNextFlights = findFlightsByCityOrAirport(lang, airportNames.getAirportName(), lastFlight.getArrivalTime().plusHours(1), endDate.plusHours(8));
         for (PriceFullOneRaceAnalysis nextFlight : possibleNextFlights) {
+            // Получаем город назначения текущего рейса
+            String nextCityName = getCitiesNames(nextFlight.getArrivalCity(), lang).getCityName();
+
+            // Проверяем, не посещали ли мы уже этот город
+            if (visitedCities.contains(nextCityName)) {
+                continue;
+            }
+
             // На рейс просто нет свободных мест
             if (!checkBookingClassAvailability(nextFlight, bookingClass)) {
                 noAvailabilityCount.incrementAndGet();
@@ -191,31 +190,37 @@ public class AirportService implements IAirportService {
             List<PriceFullOneRaceAnalysis> newRoute = new ArrayList<>(currentRoute);
             newRoute.add(nextFlight);
 
+            // Добавляем текущий город в множество посещенных
+            visitedCities.add(nextCityName);
+
             // Проверка, является ли текущий рейс конечным пунктом назначения
-            if (checkArrivalPoint(nextFlight.getArrivalAirportName(), finalDestination) || checkArrivalPoint(nextFlight.getArrivalCity(), finalDestination)) {
-                allRoutes.add(buildRouteResponse(newRoute, bookingClass));
+            if (checkArrivalAirportPoint(nextFlight.getArrivalAirportName(), nextFlight.getAircraftCode(), finalDestination, lang)
+                    || checkArrivalCityPoint(nextFlight.getArrivalCity(), finalDestination, lang)) {
+                allRoutes.add(buildRouteResponse(newRoute, bookingClass, lang));
+                return;
             } else {
                 // Рекурсивный поиск дальнейших пересадок
                 findConnectingFlights(nextFlight, finalDestination, endDate, bookingClass, maxConnections,
-                        currentConnections + 1, newRoute, allRoutes, noAvailabilityCount);
+                        currentConnections + 1, newRoute, allRoutes, noAvailabilityCount, visitedCities, lang);
             }
+
+            // Удаляем текущий город из множества посещенных, чтобы не мешать другим маршрутам
+            visitedCities.remove(nextCityName);
         }
     }
 
-    private boolean checkArrivalPoint(String arrivalPoint, String pointTo) throws JsonProcessingException {
-        var names = getAirportNames(arrivalPoint);
-        return names.getEngAirportName().equals(pointTo) || names.getRuAirportName().equals(pointTo);
+    private boolean checkArrivalCityPoint(String city, String pointTo, String lang) throws JsonProcessingException {
+        CitiesNamesResponse citiesNames = getCitiesNames(city, lang);
+        return citiesNames.getCityName().equals(pointTo);
     }
 
-    private AirportsNamesResponse getAirportNames(String airportName) throws JsonProcessingException {
-        JsonNode rootNode = objectMapper.readTree(airportName);
-
-        String englishValue = rootNode.get("en").asText();
-        String russianValue = rootNode.get("ru").asText();
-        return new AirportsNamesResponse(russianValue, englishValue);
+    private boolean checkArrivalAirportPoint(String arrivalPoint, String airportCode, String pointTo, String lang) throws JsonProcessingException {
+        AirportNameResponse airportName = getAirportName(arrivalPoint, airportCode, lang);
+        return airportName.getAirportName().equals(pointTo);
     }
 
-    private RouteResponse buildRouteResponse(List<PriceFullOneRaceAnalysis> routeFlights, String bookingClass) {
+
+    private RouteResponse buildRouteResponse(List<PriceFullOneRaceAnalysis> routeFlights, String bookingClass, String lang) throws JsonProcessingException {
         List<FlightSegment> segments = new ArrayList<>();
         Duration totalWaitingTime = Duration.ZERO;
 
@@ -224,14 +229,15 @@ public class AirportService implements IAirportService {
             segments.add(new FlightSegment(
                     flight.getFlightUid(),
                     flight.getFlightNumber(),
-                    flight.getDepartureAirportName(),
-                    flight.getArrivalAirportName(),
+                    getAirportName(flight.getDepartureAirportName(), flight.getAircraftCode(), lang).getAirportName(),
+                    getAirportName(flight.getArrivalAirportName(), flight.getAircraftCode(), lang).getAirportName(),
+                    getCitiesNames(flight.getDepartureCity(), lang).getCityName(),
+                    getCitiesNames(flight.getArrivalCity(), lang).getCityName(),
                     flight.getDepartureTime().toString(),
                     flight.getArrivalTime().toString(),
                     calculateDuration(flight.getDepartureTime(), flight.getArrivalTime()),
                     bookingClass
             ));
-
             // Считаем время ожидания, если это не первый рейс
             if (i > 0) {
                 OffsetDateTime previousArrival = routeFlights.get(i - 1).getArrivalTime();
@@ -242,7 +248,7 @@ public class AirportService implements IAirportService {
 
         String totalTravelTime = calculateTotalTravelTime(segments);
         String totalWaitingTimeStr = String.format("%d hours, %d min", totalWaitingTime.toHours(), totalWaitingTime.toMinutesPart());
-        return new RouteResponse(segments, segments.size() - 1, totalWaitingTimeStr, totalTravelTime);
+        return new RouteResponse(segments, segments.size(), totalWaitingTimeStr, totalTravelTime);
     }
 
     private String calculateDuration(OffsetDateTime departureTime, OffsetDateTime arrivalTime) {
@@ -264,55 +270,56 @@ public class AirportService implements IAirportService {
         Long flightId = bookingRaceRequest.getFlightId();
 
         Flights currentFlightFromDB = flightsRepository.findAllByFlightId(flightId)
-                .orElseThrow(() -> new RuntimeException("Flight not found in actual db"));
+                .orElseThrow(() -> new NotFoundException("Flight not found in actual db"));
 
+        //TODO проверка логики
         if (currentFlightFromDB.getActualArrival() != null || currentFlightFromDB.getActualDeparture() != null) {
-            throw new RuntimeException("You can book seats on this flight anymore");
+            throw new RaceIsGoneException("You can't book seats on this flight anymore. It's already finished.");
         }
 
         PriceFullOneRaceAnalysis flightInfo = priceForFullRaceRepository.findByFlightUid(flightId)
-                .orElseThrow(() -> new RuntimeException("Flight not found in my db"));
+                .orElseThrow(() -> new NotFoundException("Flight not found in my db"));
 
         String aircraftCode = currentFlightFromDB.getAircraftCode();
         BigDecimal userMoney = bookingRaceRequest.getPrice();
         if (seatsRepository.existsBySeatNoAndAircraft_AircraftCodeAndFareCondition(
                 bookingRaceRequest.getSeatNumber(), aircraftCode, bookingRaceRequest.getFareCondition())) {
-            throw new RuntimeException("Seat does not exist or fare condition mismatch");
+            throw new NoSeatsException("Seat does not exist or fare condition mismatch");
         }
 
         String fareCondition = bookingRaceRequest.getFareCondition();
         switch (fareCondition) {
             case "Business" -> {
                 if (flightInfo.getSoldSeatsBusiness() >= flightInfo.getTotalSeatsBusiness()) {
-                    throw new RuntimeException("No business seats available");
+                    throw new NoSeatsException("No business seats available");
                 } else {
                     if (userMoney.compareTo(flightInfo.getAveragePriceForOneBusinessSeat()) < 0) {
-                        throw new RuntimeException("Not enough money for business seats");
+                        throw new NotEnoughMoneyException("Not enough money for business seats");
                     }
                     flightInfo.setSoldSeatsBusiness(flightInfo.getSoldSeatsBusiness() + 1);
                 }
             }
             case "Comfort" -> {
                 if (flightInfo.getSoldSeatsComfort() >= flightInfo.getTotalSeatsComfort()) {
-                    throw new RuntimeException("No comfort seats available");
+                    throw new NoSeatsException("No comfort seats available");
                 } else {
                     if (userMoney.compareTo(flightInfo.getAveragePriceForOneComfortSeat()) < 0) {
-                        throw new RuntimeException("Not enough money for comfort seats");
+                        throw new NotEnoughMoneyException("Not enough money for comfort seats");
                     }
                     flightInfo.setSoldSeatsComfort(flightInfo.getSoldSeatsComfort() + 1);
                 }
             }
             case "Economy" -> {
                 if (flightInfo.getSoldSeatsEconomy() >= flightInfo.getTotalSeatsEconomy()) {
-                    throw new RuntimeException("No economy seats available");
+                    throw new NoSeatsException("No economy seats available");
                 } else {
                     if (userMoney.compareTo(flightInfo.getAveragePriceForOneEconomySeat()) < 0) {
-                        throw new RuntimeException("Not enough money for economy seats");
+                        throw new NotEnoughMoneyException("Not enough money for economy seats");
                     }
                     flightInfo.setSoldSeatsEconomy(flightInfo.getSoldSeatsEconomy() + 1);
                 }
             }
-            default -> throw new RuntimeException("Invalid fare condition with name " + fareCondition);
+            default -> throw new LanguageNotFoundException("Invalid fare condition with name " + fareCondition);
         }
 
         // Создание нового бронирования
@@ -361,6 +368,39 @@ public class AirportService implements IAirportService {
         }
     }
 
+    @Override
+    @Transactional
+    public Set<AirportNameResponse> getAllAvailableAirports(String lang) throws JsonProcessingException {
+        Set<AirportNameResponse> airportsNamesResponses = new HashSet<>();
+        for (Airport airport : airportRepository.findAll()) {
+            airportsNamesResponses.add(getAirportName(airport.getAirportName(), airport.getAirportCode(), lang));
+        }
+        return airportsNamesResponses;
+    }
+
+    private CitiesNamesResponse getCitiesNames(String city, String lang) throws JsonProcessingException {
+        JsonNode citiesNode = objectMapper.readTree(city);
+        JsonNode citiesNameNode = citiesNode.get(lang);
+
+        if (citiesNameNode == null) {
+            throw new LanguageNotFoundException("Language '" + lang + "' doesn't exist in our cities database");
+        }
+
+        String airportName = citiesNameNode.asText();
+        return new CitiesNamesResponse(airportName);
+    }
+
+    private AirportNameResponse getAirportName(String airport, String airportCode, String lang) throws JsonProcessingException {
+        JsonNode airportNode = objectMapper.readTree(airport);
+        JsonNode airportNameNode = airportNode.get(lang);
+
+        if (airportNameNode == null) {
+            throw new LanguageNotFoundException("Language '" + lang + "' doesn't exist in our airport database");
+        }
+
+        String airportName = airportNameNode.asText();
+        return new AirportNameResponse(airportName, airportCode);
+    }
 
     public boolean isSeatOccupied(Long flightId, String seatNo) {
         List<BoardingPass> boardingPasses = boardingPassRepository.findByFlightIdAndSeatNo(flightId, seatNo);
@@ -372,22 +412,22 @@ public class AirportService implements IAirportService {
         BoardingPassResponse boardingPassResponse = new BoardingPassResponse();
         String userSeatNo = checkInRequest.getSeatNumber();
         Tickets userTicket = ticketsRepository.findByBooking_BookRef(checkInRequest.getBookRef())
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+                .orElseThrow(() -> new NotFoundException("Booking not found"));
         TicketFlights bookedUserTicket = ticketsFlightsRepository.findByTicket_TicketNumber(userTicket.getTicketNumber())
-                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+                .orElseThrow(() -> new NotFoundException("Ticket not found"));
 
         if (!bookedUserTicket.getFareCondition().equals(checkInRequest.getFareCondition())) {
-            throw new RuntimeException("Fare condition mismatch");
+            throw new LanguageNotFoundException("Fare condition mismatch");
         }
 
         Flights userFlight = flightsRepository.findByFlightId(bookedUserTicket.getFlight().getFlightId())
-                .orElseThrow(() -> new RuntimeException("Flight is not found"));
+                .orElseThrow(() -> new NotFoundException("Flight is not found"));
         Seats seat = seatsRepository.findBySeatNoAndAircraft_AircraftCodeAndFareCondition(
                         userSeatNo, userFlight.getAircraftCode(), checkInRequest.getFareCondition())
-                .orElseThrow(() -> new RuntimeException("Seat does not exist or fare condition mismatch"));
+                .orElseThrow(() -> new NotFoundException("Seat does not exist or fare condition mismatch"));
 
         if (isSeatOccupied(userFlight.getFlightId(), seat.getSeatNo())) {
-            throw new RuntimeException("Seat is occupied");
+            throw new NoSeatsException("Seat is occupied");
         }
         int maxBoardingNo = boardingPassRepository.findMaxBoardingNoByFlightId(userFlight.getFlightId());
         int newBoardingNo = maxBoardingNo + 1;
@@ -403,15 +443,6 @@ public class AirportService implements IAirportService {
         boardingPassResponse.setFareCondition(checkInRequest.getFareCondition());
         boardingPassResponse.setSeatNumber(userSeatNo);
         return boardingPassResponse;
-    }
-
-    private AirportsNamesResponse getTwoAirportNames(String airport) throws JsonProcessingException {
-        AirportsNamesResponse airportsNamesResponse = objectMapper.readValue(airport, AirportsNamesResponse.class);
-        String ruAirportName = airportsNamesResponse.getRuAirportName() != null ? airportsNamesResponse.getRuAirportName() : "Неизвестно";
-        String engAirportName = airportsNamesResponse.getEngAirportName() != null ? airportsNamesResponse.getEngAirportName() : "Unknown";
-        airportsNamesResponse.setEngAirportName(engAirportName);
-        airportsNamesResponse.setRuAirportName(ruAirportName);
-        return airportsNamesResponse;
     }
 
     /**

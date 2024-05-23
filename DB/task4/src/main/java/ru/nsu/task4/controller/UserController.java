@@ -28,6 +28,8 @@ public class UserController {
     private final IAirportService airportService;
 
 
+    //TODO не выбирает конкретное место, мы ничего не говорим про места, но увеличиваем счётчик мест,
+    // а деньги не трогаем никак, список flightId на несколько рейсов сразу. Несколько боурдинг пасс
     @Operation(summary = "Бронирование рейса.",
             description = "Передаётся ID рейса, класс билета и информация о человеке, необходимая для бронирования." +
                     "Запрос возвращает сгенерированный ID билета." +
@@ -65,4 +67,5 @@ public class UserController {
         return ResponseEntity.ok(airportService.checkInOnlineForAFlight(checkInRequest));
     }
 
+    //TODO получать свободные и занятые места на самолёты
 }

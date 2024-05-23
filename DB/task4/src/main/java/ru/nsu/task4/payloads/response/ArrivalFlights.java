@@ -20,10 +20,9 @@ public class ArrivalFlights {
     @Schema(description = "Айди поездки.", example = "123321")
     private String flightNo;
 
-    @Schema(description = "Пункт отбытия на русском " +
+    @Schema(description = "Пункт отбытия, на желаемом пользователе языка " +
             "(откуда самолёт полетел в интересующий нас аэропорт).", example = "Барнаул")
-    private String originRu;
+    private String originName;
 
-    @Schema(description = "Пункт отбытия на английским.", example = "Новосибирск")
-    private String originEng;
+    private String airportCode;
 }

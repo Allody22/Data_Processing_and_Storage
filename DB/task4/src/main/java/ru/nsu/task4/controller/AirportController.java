@@ -40,8 +40,8 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/available/cities")
     @Transactional
-    public ResponseEntity<?> getAvailableCities() {
-        return ResponseEntity.ok(airportService.getAllAvailableCities());
+    public ResponseEntity<?> getAvailableCities(@RequestHeader("lang") String lang) throws JsonProcessingException {
+        return ResponseEntity.ok(airportService.getAllAvailableCities(lang));
     }
 
     @Operation(
@@ -54,8 +54,8 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/available/airports")
     @Transactional
-    public ResponseEntity<?> getAllAvailableAirports() throws JsonProcessingException {
-        return ResponseEntity.ok(airportService.getAllAvailableAirports());
+    public ResponseEntity<?> getAllAvailableAirports(@RequestHeader("lang") String lang) throws JsonProcessingException {
+        return ResponseEntity.ok(airportService.getAllAvailableAirports(lang));
     }
 
     @Operation(
@@ -65,12 +65,12 @@ public class AirportController {
             tags = {"airports", "city"})
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Список аэропортов в городе",
-                    content = {@Content(schema = @Schema(implementation = AirportsNamesResponse[].class), mediaType = "application/json")}),
+                    content = {@Content(schema = @Schema(implementation = AirportNameResponse[].class), mediaType = "application/json")}),
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/airports/{city}")
     @Transactional
-    public ResponseEntity<?> getAllAirportsInCity(@Valid @NotNull @PathVariable String city) throws JsonProcessingException {
-        return ResponseEntity.ok(airportService.getAllAirportsInCity(city));
+    public ResponseEntity<?> getAllAirportsInCity(@RequestHeader("lang") String lang, @Valid @NotNull @PathVariable String city) throws JsonProcessingException {
+        return ResponseEntity.ok(airportService.getAllAirportsInCity(lang, city));
     }
 
     @Operation(
@@ -83,8 +83,8 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/arrival/{airport}")
     @Transactional
-    public ResponseEntity<?> getAirportsArrivalRaces(@Valid @NotNull @PathVariable String airport) throws JsonProcessingException {
-        return ResponseEntity.ok(airportService.getArrivalTimetableOfTheAirport(airport));
+    public ResponseEntity<?> getAirportsArrivalRaces(@RequestHeader("lang") String lang, @Valid @NotNull @PathVariable String airport) throws JsonProcessingException {
+        return ResponseEntity.ok(airportService.getArrivalTimetableOfTheAirport(lang, airport));
     }
 
     @Operation(
@@ -97,8 +97,8 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/departure/{airport}")
     @Transactional
-    public ResponseEntity<?> getAirportsDepartureRaces(@Valid @NotNull @PathVariable String airport) throws JsonProcessingException {
-        return ResponseEntity.ok(airportService.getDepartureTimetableOfTheAirport(airport));
+    public ResponseEntity<?> getAirportsDepartureRaces(@RequestHeader("lang") String lang, @Valid @NotNull @PathVariable String airport) throws JsonProcessingException {
+        return ResponseEntity.ok(airportService.getDepartureTimetableOfTheAirport(lang, airport));
     }
 
     @Operation(summary = "Получение списка маршрутов между двумя точками с опциональными фильтрами",
@@ -111,12 +111,35 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Внутренняя ошибка сервера")
     })
     @PostMapping("/search")
-    public ResponseEntity<?> listRoutes(@RequestBody RouteSearchRequest request) throws JsonProcessingException {
+    public ResponseEntity<?> listRoutes(@RequestHeader("lang") String lang, @RequestBody RouteSearchRequest request) throws JsonProcessingException {
         String ticketClass = request.getBookingClass();
         if (!ticketClass.equals("Economy") && !ticketClass.equals("Business") && !ticketClass.equals("Comfort")) {
             return ResponseEntity.badRequest().body(new MessageResponse("Категория билетов '" + ticketClass + "' не существует."));
         }
-        var ans = airportService.getRaces(request.getFrom(), request.getTo(), request.getDepartureDate(), ticketClass, request.getMaxConnections());
+        String pointFrom = request.getFrom();
+        String pointTo = request.getTo();
+        if (!isSameLanguage(pointFrom,pointTo)){
+            return ResponseEntity.badRequest().body(new MessageResponse("Пожалуйста, используйте один язык для задания пункта отбытия и прибытия"));
+        }
+        var ans = airportService.getRaces(lang, pointFrom, pointTo, request.getDepartureDate(), ticketClass, request.getMaxConnections());
         return ResponseEntity.ok().body(ans);
     }
+
+    private static boolean isSameLanguage(String str1, String str2) {
+        Character.UnicodeBlock block1 = getUnicodeBlock(str1);
+        Character.UnicodeBlock block2 = getUnicodeBlock(str2);
+        return block1 != null && block1.equals(block2);
+    }
+
+
+    private static Character.UnicodeBlock getUnicodeBlock(String str) {
+        for (char ch : str.toCharArray()) {
+            Character.UnicodeBlock block = Character.UnicodeBlock.of(ch);
+            if (block != null) {
+                return block;
+            }
+        }
+        return null;
+    }
+
 }
