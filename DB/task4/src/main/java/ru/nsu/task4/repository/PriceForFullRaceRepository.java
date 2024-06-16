@@ -1,37 +1,31 @@
 package ru.nsu.task4.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.nsu.task4.model.PriceFullOneRaceAnalysis;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface PriceForFullRaceRepository extends JpaRepository<PriceFullOneRaceAnalysis, Long> {
 
+    @Query(value = "SELECT * FROM price_full_one_race_analysis p WHERE " +
+            "(CAST(p.departure_airport_name AS json) ->> :lang = :departureAirport OR CAST(p.departure_city AS json) ->> :lang = :departureAirport) AND " +
+            "p.departure_time BETWEEN :minDepartureTime AND :maxDepartureTime", nativeQuery = true)
+    List<PriceFullOneRaceAnalysis> findFlightsByCityOrAirportAndDepartureTime(
+            @Param("lang") String lang,
+            @Param("departureAirport") String departureAirport,
+            @Param("minDepartureTime") OffsetDateTime minDepartureTime,
+            @Param("maxDepartureTime") OffsetDateTime maxDepartureTime);
+
     Optional<PriceFullOneRaceAnalysis> findByFlightUid(Long flightUid);
 
     List<PriceFullOneRaceAnalysis> findAllByTotalPrice(BigDecimal bigDecimal);
 
     List<PriceFullOneRaceAnalysis> findAllByAveragePriceForOneSeat(BigDecimal bigDecimal);
-
-    List<PriceFullOneRaceAnalysis> findAllByDepartureCityAndArrivalCityAndAircraftCodeAndTotalPriceGreaterThan(String departureCity, String arrivalCity,
-                                                                                                               String aircraftCode, BigDecimal price);
-
-    List<PriceFullOneRaceAnalysis> findAllByDepartureCityAndArrivalCityAndTotalPriceGreaterThan(String departureCity, String arrivalCity, BigDecimal price);
-
-    List<PriceFullOneRaceAnalysis> findAllByDepartureCityAndAircraftCodeAndTotalPriceGreaterThan(String departureCity, String aircraftCode,
-                                                                                                 BigDecimal price);
-
-    List<PriceFullOneRaceAnalysis> findAllByArrivalCityAndAircraftCodeAndTotalPriceGreaterThan(String arrivalCity,
-                                                                                               String aircraftCode, BigDecimal price);
-
-    List<PriceFullOneRaceAnalysis> findAllByDepartureCityAndTotalPriceGreaterThan(String departureCity, BigDecimal price);
-
-    List<PriceFullOneRaceAnalysis> findAllByArrivalCityAndTotalPriceGreaterThan(String arrivalCity, BigDecimal price);
-
-    List<PriceFullOneRaceAnalysis> findAllByAircraftCodeAndTotalPriceGreaterThan(String aircraftCode, BigDecimal totalPrice);
-
 }

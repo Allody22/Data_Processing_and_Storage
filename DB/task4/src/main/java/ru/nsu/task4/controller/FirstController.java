@@ -6,12 +6,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 import ru.nsu.task4.model.PriceFullOneRaceAnalysis;
 import ru.nsu.task4.payloads.response.DataResponse;
 import ru.nsu.task4.services.FlightsPriceService;
@@ -21,6 +21,7 @@ import ru.nsu.task4.services.FlightsPriceService;
 @Slf4j
 @RequestMapping("/api/v1/")
 @AllArgsConstructor
+@Tag(name = "0. Structure Controller", description = "Контроллер для первого задания для составления цены о неизвестных рейсах.")
 public class FirstController {
     private final FlightsPriceService flightsPriceService;
 
@@ -32,7 +33,7 @@ public class FirstController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "True при успешном выполнении запроса",
                     content = {@Content(schema = @Schema(implementation = DataResponse.class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "500",description = "Какая-то внутренняя ошибка на сервере",content = {@Content(schema = @Schema())})})
+            @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @PostMapping("/structure/price")
     @Transactional
     public ResponseEntity<?> structurePriceForAllRaces() {
@@ -49,7 +50,7 @@ public class FirstController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "True при успешном заполнение таблицы",
                     content = {@Content(schema = @Schema(implementation = DataResponse.class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "500",description = "Какая-то внутренняя ошибка на сервере",content = {@Content(schema = @Schema())})})
+            @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @PostMapping("/calculate/price")
     @Transactional
     public ResponseEntity<?> calculatePriceForMissingRaces() {
@@ -65,7 +66,7 @@ public class FirstController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Массив с информацией об этих массивах",
                     content = {@Content(schema = @Schema(implementation = PriceFullOneRaceAnalysis[].class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "500",description = "Какая-то внутренняя ошибка на сервере",content = {@Content(schema = @Schema())})})
+            @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/races_without_average_price")
     @Transactional
     public ResponseEntity<?> getRacesWithoutAveragePrice() {
@@ -80,7 +81,7 @@ public class FirstController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Массив с информацией об этих массивах",
                     content = {@Content(schema = @Schema(implementation = PriceFullOneRaceAnalysis[].class), mediaType = "application/json")}),
-            @ApiResponse(responseCode = "500",description = "Какая-то внутренняя ошибка на сервере",content = {@Content(schema = @Schema())})})
+            @ApiResponse(responseCode = "500", description = "Какая-то внутренняя ошибка на сервере", content = {@Content(schema = @Schema())})})
     @GetMapping("/get/races_without_total_price")
     @Transactional
     public ResponseEntity<?> getRacesWithoutTotalPrice() {
